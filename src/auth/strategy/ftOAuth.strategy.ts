@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-42";
@@ -11,10 +11,13 @@ export class ftOAuthStrategy extends PassportStrategy(Strategy, '42-oauth') {
       clientID: configService.get('ftAuth.cliendid'),
       clientSecret: configService.get('ftAuth.secret'),
       callbackURL: configService.get('ftAuth.callbackurl'),
+      passReqToCallback: true,
     })
   }
  
-  async validate(req, at,rt, profile, cb) {
-
+  async validate(req, at, rt, profile, cb) {
+    const logger = new Logger(ftOAuthStrategy.name);
+    logger.log(profile);
+    cb(null, true);
   }
 }

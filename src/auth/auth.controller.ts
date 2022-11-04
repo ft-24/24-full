@@ -12,6 +12,7 @@ export class AuthController {
     }
 
     @Get('login/callback')
+    @UseGuards(ftOAuthGuard)
     loggedin(){
         this.logger.log('Logged in succesfully!');
         return 'Logged In!'

@@ -7,21 +7,23 @@ import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
-      type: "postgres",
-      host: "localhost",
-      port: 5432,
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_DATABASE,
-      entities: ["dist/**/*.entity{.ts,.js}"],
-      synchronize: true
-  }),
-  ConfigModule.forRoot({
-    isGlobal: true,
-    load: [configuration],
-  }),
-  AuthModule],
+  imports: [
+    TypeOrmModule.forRoot({
+        type: "postgres",
+        host: "localhost",
+        port: 5432,
+        username: process.env.DATABASE_USERNAME,
+        password: process.env.DATABASE_PASSWORD,
+        database: process.env.DATABASE_DATABASE,
+        entities: ["dist/**/*.entity{.ts,.js}"],
+        synchronize: true
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+    AuthModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
