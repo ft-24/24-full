@@ -10,7 +10,7 @@ export class ftOAuthGuard extends AuthGuard('42-oauth') {
         err,
         info,
       });
-      return user;
     }
+    return user;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, Redirect } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-42";
@@ -15,9 +15,12 @@ export class ftOAuthStrategy extends PassportStrategy(Strategy, '42-oauth') {
     })
   }
  
+  @Redirect()
   async validate(req, at, rt, profile, cb) {
     const logger = new Logger(ftOAuthStrategy.name);
-    logger.log(profile);
-    cb(null, true);
+    const user = {
+      token: at,
+    }
+    cb(null, user);
   }
 }

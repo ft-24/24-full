@@ -1,8 +1,11 @@
-import { Controller, Get, Logger, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Query, Redirect, UseGuards } from '@nestjs/common';
+import { AuthService } from './auth.service';
 import { ftOAuthGuard } from './guard/ftOAuth.guard';
+import { User } from './user.decorator';
 
 @Controller()
 export class AuthController {
+    constructor(private readonly authService: AuthService){}
     private logger = new Logger(AuthController.name);
     
     @Get('login')
@@ -13,9 +16,10 @@ export class AuthController {
 
     @Get('login/callback')
     @UseGuards(ftOAuthGuard)
-    loggedin(){
+    @Redirect()
+    async loggedin(@Query('code') code: string, @User() user){
         this.logger.log('Logged in succesfully!');
-        return 'Logged In!'
+        return { url: 'http://localhost:5173/main?token=' + user.token };
     }
 
     @Get('logout')
