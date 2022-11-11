@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Logger, Param, Query, Redirect, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ftOAuthGuard } from './guard/ftOAuth.guard';
+import { JwtAuthGuard } from './guard/jwt.guard';
 import { User } from './user.decorator';
 
 @Controller()
