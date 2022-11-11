@@ -19,7 +19,8 @@ export class AuthController {
     @Redirect()
     async loggedin(@Query('code') code: string, @User() user){
         this.logger.log('Logged in succesfully!');
-        return { url: 'http://localhost:5173/main?token=' + user.token };
+        const token = this.authService.getToken(user);
+        return { url: 'http://localhost:5173/main?token=' + (await token).access_token };
     }
 
     @Get('logout')
