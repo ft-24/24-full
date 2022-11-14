@@ -15,11 +15,11 @@ export class ftOAuthStrategy extends PassportStrategy(Strategy, '42-oauth') {
     })
   }
  
-  @Redirect()
   async validate(req, at, rt, profile, cb) {
     const logger = new Logger(ftOAuthStrategy.name);
     const user = {
-      token: at,
+      access_token: at,
+      refresh_token: rt,
     }
     cb(null, user);
   }

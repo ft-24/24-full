@@ -8,6 +8,10 @@ import configuration from './config/configuration';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
     TypeOrmModule.forRoot({
         type: "postgres",
         host: "localhost",
@@ -16,11 +20,7 @@ import configuration from './config/configuration';
         password: process.env.DATABASE_PASSWORD,
         database: process.env.DATABASE_DATABASE,
         entities: ["dist/**/*.entity{.ts,.js}"],
-        synchronize: true
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [configuration],
+        synchronize: false
     }),
     AuthModule
   ],
