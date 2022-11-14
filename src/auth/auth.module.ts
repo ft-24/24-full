@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from 'src/user/entity/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { OauthTokenEntity } from './entity/oauthToken.entity';
 import { ftOAuthStrategy } from './strategy/ftOAuth.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 
@@ -19,7 +19,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
         },
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([OauthTokenEntity]),
   ],
   controllers: [AuthController],
   providers: [AuthService, ftOAuthStrategy, JwtStrategy]
