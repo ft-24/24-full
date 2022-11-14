@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from 'src/user/entity/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService){}
+  constructor(
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
+    private jwtService: JwtService,
+    ){}
 
   async getToken(user) {
     const payload = { username: 'chanhuil', sub: 'userID' };
@@ -12,4 +19,6 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     }
   }
+
+  
 }

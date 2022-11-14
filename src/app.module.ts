@@ -20,7 +20,7 @@ import configuration from './config/configuration';
         password: process.env.DATABASE_PASSWORD,
         database: process.env.DATABASE_DATABASE,
         entities: ["dist/**/*.entity{.ts,.js}"],
-        synchronize: false
+        synchronize: true,
     }),
     AuthModule
   ],
