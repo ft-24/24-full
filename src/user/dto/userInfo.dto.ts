@@ -6,10 +6,10 @@ export class UserInfoDto {
 	profile_url: string;
 	stats: [];
 	matching_history: [];
-	constructor(user: UserEntity) {
-		this.intra_id = user.intra_id;
-		this.nickname = user.nickname;
-		this.profile_url = user.profile_url;
-		// this.stats = user.s
-	}
+	// constructor(user: UserEntity) {
+	// 	this.intra_id = user.intra_id;
+	// 	this.nickname = user.nickname;
+	// 	this.profile_url = user.profile_url;
+	//	this.stats = user.s
+	// }
 }
