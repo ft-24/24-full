@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Query, Redirect, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Query, Redirect, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ftOAuthGuard } from './guard/ftOAuth.guard';
 import { JwtAuthGuard } from './guard/jwt.guard';
@@ -25,8 +25,7 @@ export class AuthController {
         return { url: 'http://localhost:5173/main?token=' + (await token).access_token };
     }
 
-    // @Get('logout')
-    // logout(){
-
-    // }
+    @Get('logout')
+    logout(){
+    }
 }

@@ -14,7 +14,7 @@ export class AuthService {
     ){}
 
   async getToken(user) {
-    const payload = { username: 'chanhuil', sub: 'userID' };
+    const payload = { user_id: user.user_id };
     return {
       access_token: this.jwtService.sign(payload),
     }
@@ -28,6 +28,14 @@ export class AuthService {
         access_token: user.access_token,
         refresh_token: user.refresh_token,
       });
+    }
+  }
+
+  async destroyOauthTokens(token) {
+    const decoded = this.jwtService.decode(token);
+    const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: decoded['user_id'] })
+    if (foundUser) {
+      this.oauthTokenRepository.delete(foundUser);
     }
   }
 }
