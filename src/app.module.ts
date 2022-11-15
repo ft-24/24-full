@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { EventsModule } from './events/events.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -14,7 +14,7 @@ import { EventsModule } from './events/events.module';
       database: process.env.DATABASE_DATABASE,
       entities: ["dist/**/*.entity{.ts,.js}"],
       synchronize: true
-  }), EventsModule],
+  }), GameModule],
   controllers: [AppController],
   providers: [AppService],
 })
