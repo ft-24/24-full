@@ -1,3 +1,5 @@
+import { Socket } from "dgram";
+import { Direction } from "./Directions";
 import GameEngine from "./GameEngine";
 
 namespace Pong {
@@ -11,7 +13,7 @@ namespace Pong {
     // Must be implemented
     abstract draw(): void;
     abstract update(deltaTime: number): void;
-    abstract getInput(): void;
+    abstract getInput(player: number, input: Direction): void;
 
     // Optionally implement
     // Can optionally be given parameters

@@ -1,6 +1,8 @@
 import Utils from './Utils';
 import Scene from './Scene';
 import MainScene from '../scene/Mainscene';
+import { Socket } from 'dgram';
+import { Direction } from './Directions';
 
 namespace Pong {
 
@@ -21,8 +23,8 @@ namespace Pong {
       this.scene.update(deltaTime);
     }
 
-    getInput() {
-      this.scene.getInput();
+    getInput(player: number, input: Direction) {
+      this.scene.getInput(player, input);
     }
 
     loadScene(newScene: Scene, params?: object) {

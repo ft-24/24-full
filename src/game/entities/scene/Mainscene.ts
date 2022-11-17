@@ -6,6 +6,8 @@ import HumanPlayer from "../objects/HumanPlayer"
 import EndScene from "./EndScene";
 import GraphicalElement from "../lib/GraphicalElement"
 import { Logger } from "@nestjs/common";
+import { Socket } from "dgram";
+import { Direction } from "../lib/Directions";
 
 namespace Pong {
   export class MainScene extends Scene {
@@ -41,8 +43,13 @@ namespace Pong {
       this.ball.start();
     }
 
-    getInput() {
-
+    getInput(player: number, input: Direction) {
+      if (player == 1)
+      {
+        this.player1.handleMove(input);
+      } else {
+        this.player2.handleMove(input);
+      }
     }
 
     draw() {
