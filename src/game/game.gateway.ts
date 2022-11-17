@@ -1,13 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { ConnectedSocket, MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import Pong from './entities/Constants';
+import GameEngine from './entities/lib/GameEngine';
 
-interface MessagePayload {
-  roomName: string;
-  message: string;
-}
-
-let createdRooms: string[] = [];
+let players: Socket[] = [];
 
 @WebSocketGateway({
   namespace: 'game',
@@ -16,48 +13,40 @@ let createdRooms: string[] = [];
   },
 })
 export class GameGateway
-  implements OnGatewayInit {
-    private logger = new Logger(GameGateway.name);
+  implements OnGatewayInit, OnGatewayConnection {
     @WebSocketServer() nsp: Namespace;
-
+    private logger = new Logger(GameGateway.name);
 
     afterInit(server: any) {
-      this.nsp.adapter.on('delete-room', (room) => {
-        const deletedRoom = createdRooms.find(
-          (createdRoom) => createdRoom === room,
-        );
-        if (!deletedRoom) return ;
-        this.nsp.emit('delete-room', deletedRoom);
-        createdRooms = createdRooms.filter(
-          (createdRoom) => createdRoom !== deletedRoom,
-        );
-      })
+      let game = new GameEngine();
+      let startTime: number = Date.now();
+      let timestamp: number = startTime;
+      this.logger.log('successfully initialized!')
 
-      this.logger.log('웹소켓 서버 초기화 ✅');
+      setInterval(() => {
+        let deltaTime = (startTime - timestamp) * 0.06;
+        game.getInput();
+        game.update(deltaTime);
+        // this.logger.log(game.draw());
+        
+        if (players) {
+          players.forEach( s => {
+            s.emit('draw', game.draw());
+          })
+        }
+       
+        timestamp = startTime;
+        startTime = Date.now();
+      }, 1000/Pong.Game.FPS);
     }
 
-    @SubscribeMessage('message')
-    handleMessage(@ConnectedSocket() socket: Socket, @MessageBody() { roomName, message }: MessagePayload) {
-      socket.broadcast.to(roomName).emit('message', { username: socket.id, message });
-      return { username: socket.id, message };
+    handleConnection(@ConnectedSocket() socket: Socket, ...args: any[]) {
+      players.push(socket);
+      // this.logger.log(players);
     }
 
-    @SubscribeMessage('room-list')
-    handleRoomList() {
-      return createdRooms;
-    }
-
-    @SubscribeMessage('create-room')
-    handleCreateRoom(@ConnectedSocket() socket: Socket, @MessageBody() roomName: string ) {
-      const exists = createdRooms.find((createdRoom) => createdRoom === roomName);
-      if (exists) {
-        return { success: false, payload: `${roomName} 방이 이미 존재합니다.` }
-      }
-
-      socket.join(roomName);
-      createdRooms.push(roomName);
-      this.nsp.emit('create-room', roomName);
-
-      return { success: true, payload: roomName };
+    @SubscribeMessage('move')
+    movePlayer(@ConnectedSocket() socket: Socket, @MessageBody() roomnname: string) {
+      // this.logger.log(roomnname)
     }
 }
