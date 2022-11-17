@@ -46,12 +46,10 @@ namespace Pong {
     }
 
     draw() {
-      // this.objectsInScene.forEach(object => object.draw());
-      // new Logger('temp').log(this.objectsInScene[2].draw());
       return ({
-        p1: this.objectsInScene[0].draw(),
-        p2: this.objectsInScene[1].draw(),
-        ball: this.objectsInScene[2].draw(),
+        p1: this.player1.draw(),
+        p2: this.player2.draw(),
+        ball: this.ball.draw(),
       });
     }
 
