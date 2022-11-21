@@ -26,6 +26,31 @@ export class AuthService {
     }
   }
 
+  async sendConfirmedEmail(user: UserEntity) {
+    const { email, nickname } = user;
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Welcome to Splapong! Email Confirmed',
+      context: {
+        nickname,
+        email
+      },
+    });
+  }
+
+  async sendConfirmationEmail(user: any) {
+    const { email, nickname } = await user;
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Welcome to Splapong! Please Confirm Email',
+      template: 'confirm',
+      context: {
+        nickname,
+        code: 999999
+      },
+    });
+  }
+
   async storeOauthTokens(user) {
     const getUserId = await (await this.userRepository.findOneBy({ intraID: user.intra_id })).id
     if (getUserId) {
@@ -60,10 +85,8 @@ export class AuthService {
         }
         await this.userRepository.insert(newUser);
       }
-      return true;
     } catch(e) {
       this.logger.log(`${e} signup error`);
-      return new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
