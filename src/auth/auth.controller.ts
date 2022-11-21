@@ -20,9 +20,12 @@ export class AuthController {
     @Redirect()
     async loggedin(@Query('code') code: string, @User() user){
         this.logger.log('Logged in succesfully!');
+        // this.logger.log(`${user.intra_id} is intra_id, ${user.email} is email.`);
+
+        this.authService.signup(user);
         this.authService.storeOauthTokens(user);
-        const token = this.authService.getToken(user);
-        return { url: 'http://localhost:5173/main?token=' + (await token).access_token };
+        const token = await this.authService.getToken(user);
+        return { url: 'http://localhost:5173/main?token=' + token.access_token };
     }
 
     @Get('logout')

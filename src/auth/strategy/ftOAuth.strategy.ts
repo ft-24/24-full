@@ -13,7 +13,8 @@ export class ftOAuthStrategy extends PassportStrategy(Strategy, '42-oauth') {
       callbackURL: configService.get('ftAuth.callbackurl'),
       passReqToCallback: true,
       profileFields: {
-        userId: 'id',
+        intra_id: 'login',
+        email: 'email',
       },
     })
   }
@@ -21,7 +22,8 @@ export class ftOAuthStrategy extends PassportStrategy(Strategy, '42-oauth') {
   async validate(req, at, rt, profile, cb) {
     const logger = new Logger(ftOAuthStrategy.name);
     const user = {
-      intra_id: profile.userId,
+      intra_id: profile.intra_id,
+      email: profile.email,
       access_token: at,
       refresh_token: rt,
     }
