@@ -13,7 +13,7 @@ let player2: Socket = undefined;
 @WebSocketGateway({
   namespace: 'game',
   cors: {
-    origin: ['http://localhost:5713'],
+    origin: ['http://10.15.8.6:5713'],
   },
 })
 export class GameGateway
@@ -53,10 +53,12 @@ export class GameGateway
 
     @SubscribeMessage('move')
     movePlayer(@ConnectedSocket() socket: Socket, @MessageBody() dir: Direction) {
-      if (socket == player1) {
+      // if (socket == player1) {
+        this.logger.log('Got an movement request!')
         game.getInput(1, dir);
-      } else if (socket == player2) {
-        game.getInput(2, dir);
-      }
+      // } else if (socket == player2) {
+      //   this.logger.log('Moving p2 to somewhere')
+      //   game.getInput(2, dir);
+      // }
     }
 }

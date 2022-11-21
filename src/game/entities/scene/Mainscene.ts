@@ -53,11 +53,32 @@ namespace Pong {
     }
 
     draw() {
-      return ({
-        p1: this.player1.draw(),
-        p2: this.player2.draw(),
-        ball: this.ball.draw(),
-      });
+      if (this.ball) {
+        return ({
+          p1: this.player1.draw(),
+          p2: this.player2.draw(),
+          ball: this.ball.draw(),
+          score: {
+            p1: this.player1.getScore(),
+            p2: this.player2.getScore(),
+          },
+        });
+      }
+      else {
+        return ({
+          p1: this.player1.draw(),
+          p2: this.player2.draw(),
+          ball: {
+            x: 600,
+            y: 300,
+          },
+          score: {
+            p1: this.player1.getScore(),
+            p2: this.player2.getScore(),
+          },
+        });
+      }
+      
     }
 
     load() {
