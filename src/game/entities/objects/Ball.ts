@@ -47,6 +47,7 @@ export namespace Pong {
       // ball moving
       this.x += this.dx * this.speed * deltaTime;
       this.y += this.dy * this.speed * deltaTime;
+      
 
       // ball hit wall
       if (this.x >= maxX || this.x <= 0) {
@@ -57,6 +58,7 @@ export namespace Pong {
 
       if (this.y >= maxY || this.y <= 0) {
         this.dy = -this.dy
+        this.speed = this.speed * 1.05;
       }
     }
 
@@ -77,6 +79,7 @@ export namespace Pong {
 
     restart() {
       this.destroyed = false;
+      this.speed = Constants.Game.BALL_SPEED;
       this.dx = 0;
       this.dy = 0;
       this.start();

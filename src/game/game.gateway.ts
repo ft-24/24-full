@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 import Pong from './entities/Constants';
 import { Direction } from './entities/lib/Directions';
@@ -12,12 +12,9 @@ let player2: Socket = undefined;
 
 @WebSocketGateway({
   namespace: 'game',
-  cors: {
-    origin: ['http://10.15.8.6:5713'],
-  },
 })
 export class GameGateway
-  implements OnGatewayInit, OnGatewayConnection {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() nsp: Namespace;
     private logger = new Logger(GameGateway.name);
 
@@ -44,21 +41,31 @@ export class GameGateway
 
     handleConnection(@ConnectedSocket() socket: Socket, ...args: any[]) {
       players.push(socket);
+      this.logger.log(`Someone has joined as ${socket.id}`);
       if (player1 == undefined) {
+        this.logger.log('Someone has defined to player 1!');
         player1 = socket;
       } else if (player2 == undefined) {
+        this.logger.log('Someone has defined to player 2!');
         player2 = socket;
       }
     }
 
+    handleDisconnect(@ConnectedSocket() socket: Socket) {
+      if (player1 == socket)
+        player1 = undefined;
+      if (player2 == socket)
+        player2 = undefined;
+    }
+
     @SubscribeMessage('move')
     movePlayer(@ConnectedSocket() socket: Socket, @MessageBody() dir: Direction) {
-      // if (socket == player1) {
-        this.logger.log('Got an movement request!')
+      if (socket == player1) {
+        this.logger.log('Moving p1 to somewhere')
         game.getInput(1, dir);
-      // } else if (socket == player2) {
-      //   this.logger.log('Moving p2 to somewhere')
-      //   game.getInput(2, dir);
-      // }
+      } else if (socket == player2) {
+        this.logger.log('Moving p2 to somewhere')
+        game.getInput(2, dir);
+      }
     }
 }
