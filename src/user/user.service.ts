@@ -16,21 +16,21 @@ export class UserService {
 		const user = await this.usersRepository.findOneBy({id: 2})
 		if (!user)
 		{
-			return res.status(200).send({
+			return {
 				intra_id: 'chanhuil',
 				nickname: 'chanhui',
 				profile_url: 'https://pbs.twimg.com/media/Fdh4hiDXkAAlK7H.jpg',
 				stats: [],
 				matching_history: [],
-			})
+			};
 		}
-		return res.status(200).send({
-			intra_id: user.intra_id,
-			nickname: user.nickname,
-			profile_url: user.profile_url,
-			stats: [],
-			matching_history: []
-		})
+		// return res.status(200).send({
+		// 	intra_id: user.intra_id,
+		// 	nickname: user.nickname,
+		// 	profile_url: user.profile_url,
+		// 	stats: [],
+		// 	matching_history: []
+		// })
   }
 
 //   async findUserId(access_token: string): number {
