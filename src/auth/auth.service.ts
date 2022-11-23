@@ -102,7 +102,7 @@ export class AuthService {
     const findId = await this.tfaCodeRepository.findOneBy({ id: id });
     if (findId && findId.code == code)
     {
-      await this.tfaCodeRepository.delete(findId)
+      // await this.tfaCodeRepository.delete(findId)
       return true;
     }
     return false;

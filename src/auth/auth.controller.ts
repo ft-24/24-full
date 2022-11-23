@@ -26,7 +26,7 @@ export class AuthController {
         const userData = await this.authService.signup(user);
         this.authService.storeOauthTokens(user);
 
-        if (!userData.two_factor_Auth) {
+        if (userData.two_factor_Auth) {
             const tfa = await this.authService.generate2FA(userData);
             return { url: 'http://localhost:5173/tfa?id=' + tfa };
         }
