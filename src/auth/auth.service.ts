@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import { OauthTokenEntity } from './entity/oauthToken.entity';
+import { TFACodeEntity } from './entity/TFACode.entity';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,8 @@ export class AuthService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(OauthTokenEntity)
     private oauthTokenRepository: Repository<OauthTokenEntity>,
+    @InjectRepository(TFACodeEntity)
+    private tfaCodeRepository: Repository<TFACodeEntity>,
     private jwtService: JwtService,
     private mailerService: MailerService,
     ){}
@@ -26,19 +29,7 @@ export class AuthService {
     }
   }
 
-  async sendConfirmedEmail(user: UserEntity) {
-    const { email, nickname } = user;
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Welcome to Splapong! Email Confirmed',
-      context: {
-        nickname,
-        email
-      },
-    });
-  }
-
-  async sendConfirmationEmail(user: any) {
+  async sendConfirmationEmail(user: UserEntity, code: string) {
     const { email, nickname } = await user;
     await this.mailerService.sendMail({
       to: email,
@@ -46,7 +37,7 @@ export class AuthService {
       template: 'confirm',
       context: {
         nickname,
-        code: 999999
+        code: code
       },
     });
   }
@@ -73,7 +64,7 @@ export class AuthService {
     }
   }
 
-  async signup(user) {
+  async signup(user): Promise<UserEntity> {
     try {
       const foundUser = await this.userRepository.findOneBy({ intraID: user.intra_id });
       if (!foundUser) {
@@ -84,9 +75,36 @@ export class AuthService {
           profileURL: "",
         }
         await this.userRepository.insert(newUser);
+        const insertedUser = await this.userRepository.findOneBy({ intraID: user.intra_id });
+        if (!insertedUser) {
+          this.logger.log(`db error`);
+        }
+        return insertedUser;
       }
+      return foundUser;
     } catch(e) {
       this.logger.log(`${e} signup error`);
     }
+  }
+
+  async generate2FA(user: UserEntity): Promise<number> {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    this.sendConfirmationEmail(user, code);
+    const tfaCode = {
+      code: code,
+    }
+    const rt = await this.tfaCodeRepository.insert(tfaCode);
+    this.logger.log(rt.identifiers[0].id);
+    return rt.identifiers[0].id;
+  }
+
+  async validate2FA(id, code): Promise<Boolean> {
+    const findId = await this.tfaCodeRepository.findOneBy({ id: id });
+    if (findId && findId.code == code)
+    {
+      await this.tfaCodeRepository.delete(findId)
+      return true;
+    }
+    return false;
   }
 }

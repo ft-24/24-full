@@ -11,6 +11,7 @@ import { OauthTokenEntity } from './entity/oauthToken.entity';
 import { ftOAuthStrategy } from './strategy/ftOAuth.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { TFACodeEntity } from './entity/TFACode.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         },
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity, OauthTokenEntity]),
+    TypeOrmModule.forFeature([UserEntity, OauthTokenEntity, TFACodeEntity]),
     MailerModule.forRoot({
       transport: {
         service: "gmail",
@@ -36,7 +37,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         from: '"No Reply" <chanhuildummy@gmail.com>',
       },
       template: {
-        dir: join(__dirname, "../views/email-templates"),
+        dir: join(__dirname, "../../email-templates"),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
