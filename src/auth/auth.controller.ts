@@ -33,27 +33,24 @@ export class AuthController {
         return { url: 'http://localhost:5173/auth?token=' + token.access_token };
     }
 
+    @Post('login/tfa')
+    async tfaValidation(@Body() body) {
+        const { id, code } = body;
+        const res_id = await this.authService.validate2FA(id, code);
+        if (res_id) {
+            return { success: true, token: await this.authService.getToken({ user_id: res_id }) }
+        } else {
+            return { success: false, token: undefined }
+        }
+    }
+
     @Get('logout')
     logout(){
     }
 
-    @Post('login/tfa')
-    async tfaValidation(@Body() body) {
-        const { id, code } = body;
-
-        const res_id = await this.authService.validate2FA(id, code);
-        if (res_id) {
-            return {
-                token: await this.authService.getToken({
-                    user_id: res_id,
-                }),
-                success: true,
-            }
-        } else {
-            return {
-                token: undefined,
-                success: false,
-            }
-        }
+    @Get('login/token')
+    @UseGuards(JwtAuthGuard)
+    issueToken(@User() user) {
+        return this.authService.issueAccessToken(user);
     }
 }
