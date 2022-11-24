@@ -8,15 +8,18 @@ export class UserEntity {
 	@Column()
 	intra_id: string;
 
-	@Column()
+	@Column({ unique: true })
 	nickname: string;
+
+	@Column({ default: "" })
+	email: string;
 
 	@Column()
 	profile_url: string;
 
-	@Column()
-	two_factor_auth: boolean;
+	@Column({ default: false })
+	two_factor_Auth: boolean;
 
-	@Column()
+	@Column({ default: 0 })
 	score: number;
 }
