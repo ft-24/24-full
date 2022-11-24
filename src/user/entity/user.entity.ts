@@ -6,17 +6,20 @@ export class UserEntity {
 	id: number;
 
 	@Column()
-	intraID: string;
+	intra_id: string;
 
-	@Column()
+	@Column({ unique: true })
 	nickname: string;
 
-	@Column()
-	profileURL: string;
+	@Column({ default: "" })
+	email: string;
 
 	@Column()
+	profile_url: string;
+
+	@Column({ default: false })
 	two_factor_Auth: boolean;
 
-	@Column()
+	@Column({ default: 0 })
 	score: number;
 }
