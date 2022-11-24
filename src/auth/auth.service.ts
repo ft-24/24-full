@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   async storeOauthTokens(user) {
-    const getUserId = await (await this.userRepository.findOneBy({ intraID: user.intra_id })).id
+    const getUserId = await (await this.userRepository.findOneBy({ intra_id: user.intra_id })).id
     if (getUserId) {
       const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: getUserId })
       if (!foundUser) {
@@ -66,7 +66,7 @@ export class AuthService {
 
   async signup(user): Promise<UserEntity> {
     try {
-      const foundUser = await this.userRepository.findOneBy({ intraID: user.intra_id });
+      const foundUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
       if (!foundUser) {
         const newUser = {
           intraID: user.intra_id,
@@ -75,7 +75,7 @@ export class AuthService {
           profileURL: "",
         }
         await this.userRepository.insert(newUser);
-        const insertedUser = await this.userRepository.findOneBy({ intraID: user.intra_id });
+        const insertedUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
         if (!insertedUser) {
           this.logger.log(`db error`);
         }
