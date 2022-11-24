@@ -39,7 +39,7 @@ export class UserService {
   }
 
   async getUserFriends(@Headers() headers: any) {
-	const userId = (await this.tokenRepository.findOneBy({ access_token: headers.authorization.access_token })).user_id;
+	const userId = (await this.tokenRepository.findOneBy({ access_token: headers.authorization })).user_id;
 	const friendList = await this.friendRepository.findBy({user_id: userId});
 	console.log(friendList)
 	const ret = []
@@ -48,6 +48,20 @@ export class UserService {
 		ret.push(await this.usersRepository.findOneBy({id: friend.target_user_id}))
 	}
 	return ret;
+  }
+
+  async getFriendsProfile(@Headers() headers: any, friend: number) {
+	if (!this.findByUser(headers.authorization)) {
+		return null;
+	}
+	const user = await this.usersRepository.findOneBy({id: friend});
+	return {
+		intra_id: user.intra_id,
+		image: user.profile_url,
+		nickname: user.nickname,
+		stats: [],
+		matching_history: []
+	}
   }
 
   async findByUser(access_token: string) {
