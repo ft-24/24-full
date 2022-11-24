@@ -1,4 +1,4 @@
-import { Controller, Get, Head, Headers, Logger, Param, Res } from '@nestjs/common';
+import { Controller, Get, Head, Headers, Logger, Param, Put, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -31,5 +31,10 @@ export class UserController {
   async getFriendsProfile(@Headers() headers: any, @Res() res, @Param('friend_intra_id') friend) {
 	const profile = await this.userService.getFriendsProfile(headers, friend);
 	return res.stats(200).send(profile);
+  }
+
+  @Put('me')
+  async userProfileEdit(@Headers() headers: any, @Req() req) {
+	
   }
 }
