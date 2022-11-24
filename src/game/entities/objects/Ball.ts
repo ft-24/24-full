@@ -58,7 +58,7 @@ export namespace Pong {
 
       if (this.y >= maxY || this.y <= 0) {
         this.dy = -this.dy
-        this.speed = this.speed * 1.05;
+        // this.speed = this.speed * 1.05;
       }
     }
 
