@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OauthTokenEntity } from 'src/auth/entity/oauthToken.entity';
 import { Repository } from 'typeorm';
 import { UserInfoDto } from './dto/userInfo.dto';
+import { FriendListEntity } from './entity/friendList.entity';
 import { UserEntity } from './entity/user.entity';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class UserService {
 	constructor(
 		@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
 		@InjectRepository(OauthTokenEntity) private tokenRepository: Repository<OauthTokenEntity>,
+		@InjectRepository(FriendListEntity) private friendRepository: Repository<FriendListEntity>,
 	) {}
 
 	async getUserInfo(@Headers() headers: any) {
@@ -34,6 +36,18 @@ export class UserService {
 			stats: [],
 			matching_history: []
 		}
+  }
+
+  async getUserFriends(@Headers() headers: any) {
+	const userId = (await this.tokenRepository.findOneBy({ access_token: headers.authorization.access_token })).user_id;
+	const friendList = await this.friendRepository.findBy({user_id: userId});
+	console.log(friendList)
+	const ret = []
+	for(let ind in friendList) {
+		let friend = friendList[ind];
+		ret.push(await this.usersRepository.findOneBy({id: friend.target_user_id}))
+	}
+	return ret;
   }
 
   async findByUser(access_token: string) {

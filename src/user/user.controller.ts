@@ -20,4 +20,10 @@ export class UserController {
     return res.status(200).send(ret);
   }
 
+  @Get('friends')
+  async getUserFriends(@Headers() headers: any, @Res() res) {
+	return res.status(200).send(
+		await this.userService.getUserFriends(headers)
+	);
+  }
 }
