@@ -1,8 +1,7 @@
-import { Controller, Get, Logger, Post, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Logger, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { existsSync, mkdirSync } from 'fs';
-import { diskStorage } from 'multer';
 import { AppService } from './app.service';
+import { multerOptions } from './lib/multerOptions';
 
 @Controller()
 export class AppController {
@@ -14,24 +13,9 @@ export class AppController {
   }
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file',
-  {
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        const uploadPath: string = 'upload';
-        if (!existsSync(uploadPath)) {
-          mkdirSync(uploadPath);
-        }
-        cb(null, uploadPath);
-      },
-      filename: (req, file, cb) => {
-        cb(null, file.originalname);
-      }
-    })
-  }))
-  uploadFile() {
-    const logger = new Logger(AppController.name);
-    logger.log('File Uploaded!');
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  uploadFile(@UploadedFile() file) {
+    return `http://localhost:3000/upload/${file.filename}`;
   }
 
 }
