@@ -12,13 +12,13 @@ export class UserService {
 		@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
 		@InjectRepository(OauthTokenEntity) private tokenRepository: Repository<OauthTokenEntity>,
 		@InjectRepository(FriendListEntity) private friendRepository: Repository<FriendListEntity>,
+		
 	) {}
 
 	async getUserInfo(@Headers() headers: any) {
 		// access token 으로 user id 찾기
-		const user = await this.findByUser(headers.authorization);
+		const user = await this.findByToken(headers.authorization);
 		console.log('user:', user)
-		// const user = await this.usersRepository.findOneBy({id: 2})
 		if (!user)
 		{
 			return {
@@ -51,7 +51,7 @@ export class UserService {
   }
 
   async getFriendsProfile(@Headers() headers: any, friend: number) {
-	if (!this.findByUser(headers.authorization)) {
+	if (!this.findByToken(headers.authorization)) {
 		return null;
 	}
 	const user = await this.usersRepository.findOneBy({id: friend});
@@ -64,8 +64,8 @@ export class UserService {
 	}
   }
 
-  async findByUser(access_token: string) {
-	const userId = (await this.tokenRepository.findOneBy({ access_token: access_token })).user_id;
-	return this.usersRepository.findOneBy({id: userId});
+  async findByToken(access_token: string) {
+		const userId = (await this.tokenRepository.findOneBy({ access_token: access_token })).user_id;
+		return this.usersRepository.findOneBy({id: userId});
   }
 }

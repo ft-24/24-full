@@ -21,17 +21,15 @@ export class AuthController {
     @Redirect()
     async loggedin(@User() user) {
         this.logger.log('Logged in succesfully!');
-        // this.logger.log(`${user.intra_id} is intra_id, ${user.email} is email.`);
 
         const userData = await this.authService.signup(user);
-        this.authService.storeOauthTokens(user);
 
         if (userData.two_factor_Auth) {
             const tfa = await this.authService.generate2FA(userData);
             return { url: 'http://localhost:5173/tfa?id=' + tfa };
         }
 
-        const token = await this.authService.getToken(user);
+        const token = await this.authService.getToken(userData);
         return { url: 'http://localhost:5173/auth?token=' + token.access_token };
     }
 
@@ -43,17 +41,15 @@ export class AuthController {
     async tfaValidation(@Body() body) {
         const { id, code } = body;
 
-        // this.logger.log(`${id} as id, ${code} as code`);
-        if (await this.authService.validate2FA(id, code)) {
-            // this.logger.log(`Validation success!`);
+        const res_id = await this.authService.validate2FA(id, code);
+        if (res_id) {
             return {
                 token: await this.authService.getToken({
-                    user_id: 'chanhuil',
+                    user_id: res_id,
                 }),
                 success: true,
             }
         } else {
-            // this.logger.log(`Validation failed!`);
             return {
                 token: undefined,
                 success: false,

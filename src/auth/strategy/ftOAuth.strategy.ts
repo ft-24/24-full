@@ -24,8 +24,6 @@ export class ftOAuthStrategy extends PassportStrategy(Strategy, '42-oauth') {
     const user = {
       intra_id: profile.intra_id,
       email: profile.email,
-      access_token: at,
-      refresh_token: rt,
     }
     cb(null, user);
   }
