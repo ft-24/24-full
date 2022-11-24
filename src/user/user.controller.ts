@@ -11,15 +11,13 @@ export class UserController {
     return 'hi';
   }
 
-  @Get(':id/:prop')
-  async getUserInfo(@Headers() headers: any, @Res() res, @Param('id') pa, @Param('prop') pr) {
+  @Get('me')
+  async getUserInfo(@Headers() headers: any, @Res() res) {
     // this.logger.log(pa, pr);
-    const ret = await this.userService.getUserInfo(headers, res);
-    this.logger.log(ret[pr])
-    const data = ret[pr];
-    return res.status(200).send({
-      data: data
-    });
+    const ret = await this.userService.getUserInfo(headers);
+    // this.logger.log(ret[pr])
+    // const data = ret[pr];
+    return res.status(200).send(ret);
   }
 
 }
