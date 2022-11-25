@@ -10,7 +10,4 @@ export class OauthTokenEntity {
 
   @Column()
   access_token: string;
-
-  @Column()
-  refresh_token: string;
 }

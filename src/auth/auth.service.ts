@@ -50,7 +50,7 @@ export class AuthService {
         this.oauthTokenRepository.insert({
           user_id: getUserId,
           access_token: user.access_token,
-          refresh_token: user.refresh_token,
+          // refresh_token: user.refresh_token,
         });
       }
     }

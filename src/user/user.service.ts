@@ -16,11 +16,11 @@ export class UserService {
 
 	async getUserInfo(@Headers() headers: any) {
 		// access token 으로 user id 찾기
-		const user = await this.findByUser(headers.authorization);
-		console.log('user:', user)
-		// const user = await this.usersRepository.findOneBy({id: 2})
-		if (!user)
-		{
+		// const user = await this.findByUser(headers.authorization);
+		// console.log('user:', user)
+		// // const user = await this.usersRepository.findOneBy({id: 2})
+		// if (!user)
+		// {
 			return {
 				intra_id: 'chanhuil',
 				nickname: 'chanhui',
@@ -28,25 +28,25 @@ export class UserService {
 				stats: [],
 				matching_history: [],
 			};
-		}
-		return {
-			intra_id: user.intra_id,
-			nickname: user.nickname,
-			profile_url: user.profile_url,
-			stats: [],
-			matching_history: []
-		}
+		// }
+		// return {
+		// 	intra_id: user.intra_id,
+		// 	nickname: user.nickname,
+		// 	profile_url: user.profile_url,
+		// 	stats: [],
+		// 	matching_history: []
+		// }
   }
 
   async getUserFriends(@Headers() headers: any) {
-	const userId = (await this.tokenRepository.findOneBy({ access_token: headers.authorization })).user_id;
-	const friendList = await this.friendRepository.findBy({user_id: userId});
-	console.log(friendList)
+	// const userId = (await this.tokenRepository.findOneBy({ access_token: headers.authorization })).user_id;
+	// const friendList = await this.friendRepository.findBy({user_id: userId});
+	// console.log(friendList)
 	const ret = []
-	for(let ind in friendList) {
-		let friend = friendList[ind];
-		ret.push(await this.usersRepository.findOneBy({id: friend.target_user_id}))
-	}
+	// for(let ind in friendList) {
+	// 	let friend = friendList[ind];
+	// 	ret.push(await this.usersRepository.findOneBy({id: friend.target_user_id}))
+	// }
 	return ret;
   }
 
@@ -65,7 +65,7 @@ export class UserService {
   }
 
   async findByUser(access_token: string) {
-	const userId = (await this.tokenRepository.findOneBy({ access_token: access_token })).user_id;
-	return this.usersRepository.findOneBy({id: userId});
+	// const userId = (await this.tokenRepository.findOneBy({ access_token: access_token })).user_id;
+	// return this.usersRepository.findOneBy({id: userId});
   }
 }

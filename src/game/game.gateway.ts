@@ -8,6 +8,7 @@ let game;
 
 @WebSocketGateway({
   namespace: 'game',
+  
 })
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -19,10 +20,12 @@ export class GameGateway
     }
 
     handleConnection(@ConnectedSocket() socket: Socket, ...args: any[]) {
+      this.logger.log('Someone has joined!')
       game.addPlayer(socket);
     }
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
+      this.logger.log('Someone has left!')
       game.delPlayer(socket);
     }
 
