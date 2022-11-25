@@ -1,4 +1,4 @@
-import { Controller, Get, Head, Headers, Logger, Param, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Head, Headers, Logger, Param, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { User } from 'src/auth/user.decorator';
 import { UserService } from './user.service';
@@ -24,7 +24,7 @@ export class UserController {
   @Get('profile/:intra_id')
   @UseGuards(JwtAuthGuard)
   async getFriendsProfile(@Res() res, @Param('intra_id') id) {
-    return res.stats(200).send(
+    return res.status(200).send(
       await this.userService.getFriendsProfile(id)
     );
   }
@@ -37,9 +37,19 @@ export class UserController {
     );
   }
 
-  @Put('profile')
+  @Put('profile/:prop')
   @UseGuards(JwtAuthGuard)
-  async userProfileEdit(@Req() req, @User() user) {
-    
+  async userProfileEdit(@Res() res, @Body() body, @Param('prop') prop, @User() user) {
+    this.logger.log(body)
+    const { nickname, two_auth } = body;
+    if (nickname) {
+      await this.userService.changeUserNickname(user, nickname)
+    }
+    if (two_auth) {
+      await this.userService.changeUserTFA(user, two_auth)
+    }
+    return res.status(200).send(
+      await this.userService.getUserInfo(user)
+    );
   }
 }

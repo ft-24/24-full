@@ -53,4 +53,20 @@ export class UserService {
 			matching_history: []
 		}
   }
+
+	async changeUserNickname(user, nickname) {
+		const foundUser = await this.usersRepository.findOneBy({ id: user.user_id })
+		if (foundUser) {
+			await this.usersRepository.update(foundUser, { nickname: nickname });
+			return name;
+		}
+	}
+
+	async changeUserTFA(user, two_auth) {
+		const foundUser = await this.usersRepository.findOneBy({ id: user.user_id })
+		if (foundUser) {
+			await this.usersRepository.update(foundUser, { two_factor_Auth: two_auth });
+			return two_auth;
+		}
+	}
 }
