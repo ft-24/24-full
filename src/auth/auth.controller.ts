@@ -48,9 +48,10 @@ export class AuthController {
     logout(){
     }
 
-    @Get('login/token')
-    @UseGuards(JwtAuthGuard)
-    issueToken(@User() user) {
-        return this.authService.issueAccessToken(user);
-    }
+    // @Get('login/token')
+    // @UseGuards(JwtAuthGuard)
+    // issueToken(@User() user) {
+    //     return 'token authorized!';
+    //     return this.authService.issueAccessToken(user);
+    // }
 }

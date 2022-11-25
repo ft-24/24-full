@@ -23,7 +23,7 @@ export class AuthService {
   private logger = new Logger(AuthService.name);
 
   async getToken(user) {
-    const payload = { user_id: user.user_id };
+    const payload = { user_id: user.id };
     return {
       access_token: this.jwtService.sign(payload),
     }
@@ -81,7 +81,7 @@ export class AuthService {
           profile_url: "",
         }
         const insertedUser = await this.userRepository.insert(newUser);
-        return insertedUser.identifiers[0].id;
+        return insertedUser.raw[0];
       }
       return foundUser;
     } catch(e) {
@@ -97,7 +97,6 @@ export class AuthService {
       code: code,
     }
     const rt = await this.tfaCodeRepository.insert(tfaCode);
-    this.logger.log(rt.identifiers[0].id);
     return rt.identifiers[0].id;
   }
 
