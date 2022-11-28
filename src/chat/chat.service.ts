@@ -14,5 +14,24 @@ export class ChatService {
   ){}
   private logger = new Logger(ChatService.name);
 
-  
+  async createNewRoom(room) {
+    try {
+      const foundRoom = await this.chatRoomRepository.findOneBy({ name: room.name });
+      if (!foundRoom) {
+        const newRoom = {
+          owner_id: room.owner_id,
+          name: room.name,
+          access_modifier: room.access_modifier,
+          password: room.password,
+          create_data: Date.now(),
+          update_data: Date.now(),
+        }
+        const insertedRoom = await this.chatRoomRepository.insert(newRoom);
+        return insertedRoom.raw[0];
+      }
+      return foundRoom;
+    } catch(e) {
+
+    }
+  }
 }

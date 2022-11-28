@@ -75,7 +75,7 @@ export class AuthService {
       const foundUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
       if (!foundUser) {
         const newUser = {
-          intra_id: user.intra_id,
+          intra_id: user.int1ra_id,
           nickname: user.intra_id,
           email: user.email,
           profile_url: "",

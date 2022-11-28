@@ -14,7 +14,7 @@ export class ChatRoomEntity {
 	@Column()
 	access_modifier: string;
 
-	@Column()
+	@Column({ nullable: true })
 	password: string;
 
 	@Column()
