@@ -29,6 +29,8 @@
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/websockets": "^9.2.0",
+    "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "hbs": "^4.2.0",
     "logger": "^0.0.1",
@@ -40,6 +42,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "socket.io": "^4.5.4",
     "typeorm": "^0.3.10"
   },
   "devDependencies": {

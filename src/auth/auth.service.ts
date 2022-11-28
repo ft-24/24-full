@@ -19,7 +19,7 @@ export class AuthService {
     private tfaCodeRepository: Repository<TFACodeEntity>,
     private jwtService: JwtService,
     private mailerService: MailerService,
-    ){}
+  ){}
   private logger = new Logger(AuthService.name);
 
   async getToken(user) {
