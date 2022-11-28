@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChatEntity } from './entity/chat.entity';
 import { ChatRoomEntity } from './entity/chatRoom.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChatService {
@@ -18,11 +19,14 @@ export class ChatService {
     try {
       const foundRoom = await this.chatRoomRepository.findOneBy({ name: room.name });
       if (!foundRoom) {
+
+        const salt = await bcrypt.genSalt();
+        const hash = await bcrypt.hash(room.password, salt);
         const newRoom = {
           owner_id: room.owner_id,
           name: room.name,
           access_modifier: room.access_modifier,
-          password: room.password,
+          password: hash,
           create_data: Date.now(),
           update_data: Date.now(),
         }
