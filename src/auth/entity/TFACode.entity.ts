@@ -6,5 +6,8 @@ export class TFACodeEntity {
   id: number;
 
   @Column()
+  user_id: number;
+
+  @Column()
   code: string;
 }

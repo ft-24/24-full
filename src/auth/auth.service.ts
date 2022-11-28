@@ -23,7 +23,7 @@ export class AuthService {
   private logger = new Logger(AuthService.name);
 
   async getToken(user) {
-    const payload = { user_id: user.user_id };
+    const payload = { user_id: user.id };
     return {
       access_token: this.jwtService.sign(payload),
     }
@@ -42,44 +42,46 @@ export class AuthService {
     });
   }
 
-  async storeOauthTokens(user) {
-    const getUserId = await (await this.userRepository.findOneBy({ intra_id: user.intra_id })).id
+  async issueAccessToken(user) {
+    const getUserId = await (await this.userRepository.findOneBy({ id: user.user_id }));
     if (getUserId) {
-      const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: getUserId })
-      if (!foundUser) {
-        this.oauthTokenRepository.insert({
-          user_id: getUserId,
-          access_token: user.access_token,
-          refresh_token: user.refresh_token,
-        });
+      const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: getUserId.id })
+      if (foundUser) {
+        this.oauthTokenRepository.delete(foundUser);
       }
+      const access_token = this.jwtService.sign({}, {
+        expiresIn: `3d`,
+      });
+
+      this.oauthTokenRepository.insert({
+        user_id: getUserId.id,
+        access_token: access_token,
+      });
+
+      return (access_token);
     }
   }
 
-  async destroyOauthTokens(token) {
-    const decoded = this.jwtService.decode(token);
-    const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: decoded['user_id'] })
-    if (foundUser) {
-      this.oauthTokenRepository.delete(foundUser);
-    }
-  }
+  // async destroyOauthTokens(token) {
+  //   const decoded = this.jwtService.decode(token);
+  //   const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: decoded['user_id'] })
+  //   if (foundUser) {
+  //     this.oauthTokenRepository.delete(foundUser);
+  //   }
+  // }
 
   async signup(user): Promise<UserEntity> {
     try {
       const foundUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
       if (!foundUser) {
         const newUser = {
-          intraID: user.intra_id,
+          intra_id: user.intra_id,
           nickname: user.intra_id,
           email: user.email,
-          profileURL: "",
+          profile_url: "",
         }
-        await this.userRepository.insert(newUser);
-        const insertedUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
-        if (!insertedUser) {
-          this.logger.log(`db error`);
-        }
-        return insertedUser;
+        const insertedUser = await this.userRepository.insert(newUser);
+        return insertedUser.raw[0];
       }
       return foundUser;
     } catch(e) {
@@ -91,20 +93,19 @@ export class AuthService {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     this.sendConfirmationEmail(user, code);
     const tfaCode = {
+      user_id: user.id,
       code: code,
     }
     const rt = await this.tfaCodeRepository.insert(tfaCode);
-    this.logger.log(rt.identifiers[0].id);
     return rt.identifiers[0].id;
   }
 
-  async validate2FA(id, code): Promise<Boolean> {
+  async validate2FA(id, code): Promise<number> {
     const findId = await this.tfaCodeRepository.findOneBy({ id: id });
     if (findId && findId.code == code)
     {
-      // await this.tfaCodeRepository.delete(findId)
-      return true;
+      return findId.user_id;
     }
-    return false;
+    return undefined;
   }
 }
