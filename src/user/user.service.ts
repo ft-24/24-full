@@ -12,60 +12,61 @@ export class UserService {
 		@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
 		@InjectRepository(OauthTokenEntity) private tokenRepository: Repository<OauthTokenEntity>,
 		@InjectRepository(FriendListEntity) private friendRepository: Repository<FriendListEntity>,
+		
 	) {}
 
-	async getUserInfo(@Headers() headers: any) {
-		// access token 으로 user id 찾기
-		const user = await this.findByUser(headers.authorization);
-		console.log('user:', user)
-		// const user = await this.usersRepository.findOneBy({id: 2})
-		if (!user)
+	async getUserInfo(user) {
+		const foundUser = await this.usersRepository.findOneBy({ id: user.user_id })
+		if (!foundUser)
 		{
-			return {
-				intra_id: 'chanhuil',
-				nickname: 'chanhui',
-				profile_url: 'https://pbs.twimg.com/media/Fdh4hiDXkAAlK7H.jpg',
-				stats: [],
-				matching_history: [],
-			};
+			return {};
 		}
 		return {
-			intra_id: user.intra_id,
-			nickname: user.nickname,
-			profile_url: user.profile_url,
+			intra_id: foundUser.intra_id,
+			nickname: foundUser.nickname,
+			profile_url: foundUser.profile_url,
 			stats: [],
 			matching_history: []
 		}
   }
 
-  async getUserFriends(@Headers() headers: any) {
-	const userId = (await this.tokenRepository.findOneBy({ access_token: headers.authorization })).user_id;
-	const friendList = await this.friendRepository.findBy({user_id: userId});
-	console.log(friendList)
-	const ret = []
-	for(let ind in friendList) {
-		let friend = friendList[ind];
-		ret.push(await this.usersRepository.findOneBy({id: friend.target_user_id}))
-	}
-	return ret;
+  async getUserFriends(user) {
+		const friendList = await this.friendRepository.findBy({ user_id: user.user_id });
+		const ret = [];
+		for(let ind in friendList) {
+			let friend = await this.usersRepository.findOneBy({ id: friendList[ind].target_user_id })
+			ret.push({
+				nickname: friend.nickname,
+				online: true,
+			})
+		}
+		return ret;
   }
 
-  async getFriendsProfile(@Headers() headers: any, friend: number) {
-	if (!this.findByUser(headers.authorization)) {
-		return null;
-	}
-	const user = await this.usersRepository.findOneBy({id: friend});
-	return {
-		intra_id: user.intra_id,
-		image: user.profile_url,
-		nickname: user.nickname,
-		stats: [],
-		matching_history: []
-	}
+  async getFriendsProfile(id) {
+		const user = await this.usersRepository.findOneBy({ intra_id: id });
+		return {
+			intra_id: user.intra_id,
+			image: user.profile_url,
+			nickname: user.nickname,
+			stats: [],
+			matching_history: []
+		}
   }
 
-  async findByUser(access_token: string) {
-	const userId = (await this.tokenRepository.findOneBy({ access_token: access_token })).user_id;
-	return this.usersRepository.findOneBy({id: userId});
-  }
+	async changeUserNickname(user, nickname) {
+		const foundUser = await this.usersRepository.findOneBy({ id: user.user_id })
+		if (foundUser) {
+			await this.usersRepository.update(foundUser, { nickname: nickname });
+			return name;
+		}
+	}
+
+	async changeUserTFA(user, two_auth) {
+		const foundUser = await this.usersRepository.findOneBy({ id: user.user_id })
+		if (foundUser) {
+			await this.usersRepository.update(foundUser, { two_factor_Auth: two_auth });
+			return two_auth;
+		}
+	}
 }
