@@ -40,13 +40,15 @@ export class UserController {
   @Put('profile/:prop')
   @UseGuards(JwtAuthGuard)
   async userProfileEdit(@Res() res, @Body() body, @Param('prop') prop, @User() user) {
-    this.logger.log(body)
-    const { nickname, two_auth } = body;
+    const { nickname, two_auth, arcade } = body;
     if (nickname) {
       await this.userService.changeUserNickname(user, nickname)
     }
     if (two_auth) {
       await this.userService.changeUserTFA(user, two_auth)
+    }
+    if (arcade) {
+      await this.userService.changeUserArcade(user, arcade)
     }
     return res.status(200).send(
       await this.userService.getUserInfo(user)

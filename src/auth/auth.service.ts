@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entity/user.entity';
+import { UserStatsEntity } from 'src/user/entity/userStats.entity';
 import { Repository } from 'typeorm';
 import { OauthTokenEntity } from './entity/oauthToken.entity';
 import { TFACodeEntity } from './entity/TFACode.entity';
@@ -13,6 +14,8 @@ export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(UserStatsEntity)
+    private userStatsRepository: Repository<UserStatsEntity>,
     @InjectRepository(OauthTokenEntity)
     private oauthTokenRepository: Repository<OauthTokenEntity>,
     @InjectRepository(TFACodeEntity)
@@ -81,7 +84,18 @@ export class AuthService {
           profile_url: "",
         }
         const insertedUser = await this.userRepository.insert(newUser);
+        const newUserStats = {
+          user_id: insertedUser.raw[0].id,
+        }
+        const insertedUserStats = await this.userStatsRepository.insert(newUserStats);
         return insertedUser.raw[0];
+      }
+      const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: foundUser.id });
+      if (!foundUserStats) {
+        const newUserStats = {
+          user_id: foundUser.id,
+        }
+        const insertedUserStats = await this.userStatsRepository.insert(newUserStats);
       }
       return foundUser;
     } catch(e) {
