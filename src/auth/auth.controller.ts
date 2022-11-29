@@ -38,7 +38,7 @@ export class AuthController {
         const { id, code } = body;
         const res_id = await this.authService.validate2FA(id, code);
         if (res_id) {
-            return { success: true, token: await this.authService.getToken({ user_id: res_id }) }
+            return { success: true, token: await this.authService.getToken({ id: res_id }) }
         } else {
             return { success: false, token: undefined }
         }
