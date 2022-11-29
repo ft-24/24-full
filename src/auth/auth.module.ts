@@ -18,30 +18,35 @@ import { TFACodeEntity } from './entity/TFACode.entity';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({  
-        secret: config.get<string>('JWT_SECRET'),
+        secret: config.get('jwt.secret'),
         signOptions: {
-          expiresIn: '60s',
+          expiresIn: config.get('jwt.expiresin'),
         },
       }),
     }),
     TypeOrmModule.forFeature([UserEntity, OauthTokenEntity, TFACodeEntity]),
-    MailerModule.forRoot({
-      transport: {
-        service: "gmail",
-        auth: {
-          user: 'chanhuildummy@gmail.com',
-          pass: 'fuimxswykjawkuib',
-        },
-      },
-      defaults: {
-        from: '"No Reply" <chanhuildummy@gmail.com>',
-      },
-      template: {
-        dir: join(__dirname, "../../email-templates"),
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: true,
-        },
+    MailerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          transport: {
+            service: "gmail",
+            auth: {
+              user: config.get('mailer.email'),
+              pass: config.get('mailer.password'),
+            },
+          },
+          defaults: {
+            from: `"No Reply" <${config.get('mailer.email')}>`,
+          },
+          template: {
+            dir: join(__dirname, "../../email-templates"),
+            adapter: new HandlebarsAdapter(),
+            options: {
+              strict: true,
+            },
+          },
+        }
       },
     }),
   ],

@@ -5,7 +5,7 @@ export class UserEntity {
 	@PrimaryGeneratedColumn('rowid')
 	id: number;
 
-	@Column()
+	@Column({ default: "" })
 	intra_id: string;
 
 	@Column({ unique: true })
@@ -14,7 +14,7 @@ export class UserEntity {
 	@Column({ default: "" })
 	email: string;
 
-	@Column()
+	@Column({ default: "" })
 	profile_url: string;
 
 	@Column({ default: false })
