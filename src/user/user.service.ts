@@ -65,7 +65,7 @@ export class UserService {
 		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
 		if (foundUser) {
 			await this.userRepository.update(foundUser, { nickname: nickname });
-			return name;
+			return nickname;
 		}
 	}
 
