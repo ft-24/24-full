@@ -1,5 +1,11 @@
 export default () => ({
 
+    db: {
+        username: process.env.DATABASE_USERNAME,
+        password: process.env.DATABASE_PASSWORD,
+        database: process.env.DATABASE_DATABASE,
+    },
+
     ftAuth: {
         cliendid: process.env.CLIENT_ID,
         secret: process.env.CLIENT_SECRET,
@@ -8,5 +14,11 @@ export default () => ({
 
     jwt: {
         secret: process.env.JWT_SECRET,
-    }
+        expiresin: process.env.JWT_EXPIRES_IN
+    },
+
+    mailer: {
+        email: process.env.MAILER_EMAIL,
+        password: process.env.MAILER_PASSWORD,
+    },
 });
