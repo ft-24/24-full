@@ -1,4 +1,5 @@
 import { Headers, Injectable, Res } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OauthTokenEntity } from 'src/auth/entity/oauthToken.entity';
 import { Repository } from 'typeorm';
@@ -14,6 +15,7 @@ export class UserService {
 		@InjectRepository(UserStatsEntity) private userStatsRepository: Repository<UserStatsEntity>,
 		@InjectRepository(OauthTokenEntity) private tokenRepository: Repository<OauthTokenEntity>,
 		@InjectRepository(FriendListEntity) private friendRepository: Repository<FriendListEntity>,
+		private readonly configService: ConfigService,
 	) {}
 
 	async getUserInfo(user) {
@@ -81,7 +83,13 @@ export class UserService {
 		const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: user.user_id })
 		if (foundUserStats) {
 			await this.userStatsRepository.update(foundUserStats, { arcade_score: arcade });
-			return arcade;
+		}
+	}
+
+	async changeUserProfilePic(user, file) {
+		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
+		if (foundUser) {
+			await this.userRepository.update(foundUser, { profile_url: `${this.configService.get('url')}/${file.path}` });
 		}
 	}
 

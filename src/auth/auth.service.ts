@@ -22,6 +22,7 @@ export class AuthService {
     private tfaCodeRepository: Repository<TFACodeEntity>,
     private jwtService: JwtService,
     private mailerService: MailerService,
+		private readonly configService: ConfigService,
     ){}
   private logger = new Logger(AuthService.name);
 
@@ -81,13 +82,13 @@ export class AuthService {
           intra_id: user.intra_id,
           nickname: user.intra_id,
           email: user.email,
-          profile_url: "",
+          profile_url: `${this.configService.get('url')}/upload/default.png`,
         }
         const insertedUser = await this.userRepository.insert(newUser);
         const newUserStats = {
           user_id: insertedUser.raw[0].id,
         }
-        const insertedUserStats = await this.userStatsRepository.insert(newUserStats);
+        await this.userStatsRepository.insert(newUserStats);
         return insertedUser.raw[0];
       }
       const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: foundUser.id });
@@ -95,7 +96,7 @@ export class AuthService {
         const newUserStats = {
           user_id: foundUser.id,
         }
-        const insertedUserStats = await this.userStatsRepository.insert(newUserStats);
+        await this.userStatsRepository.insert(newUserStats);
       }
       return foundUser;
     } catch(e) {
