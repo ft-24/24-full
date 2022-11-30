@@ -5,6 +5,7 @@ import { OauthTokenEntity } from 'src/auth/entity/oauthToken.entity';
 import { Repository } from 'typeorm';
 import { UserInfoDto } from './dto/userInfo.dto';
 import { FriendListEntity } from './entity/friendList.entity';
+import { MatchHistoryEntity } from './entity/matchHistory.entity';
 import { UserEntity } from './entity/user.entity';
 import { UserStatsEntity } from './entity/userStats.entity';
 
@@ -13,6 +14,7 @@ export class UserService {
 	constructor(
 		@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
 		@InjectRepository(UserStatsEntity) private userStatsRepository: Repository<UserStatsEntity>,
+		@InjectRepository(MatchHistoryEntity) private matchHistoryRepository: Repository<MatchHistoryEntity>,
 		@InjectRepository(OauthTokenEntity) private tokenRepository: Repository<OauthTokenEntity>,
 		@InjectRepository(FriendListEntity) private friendRepository: Repository<FriendListEntity>,
 		private readonly configService: ConfigService,
@@ -35,9 +37,27 @@ export class UserService {
 				ladder_score: foundUserStats.ladder_score,
 				arcade_score: foundUserStats.arcade_score,
 			},
-			matching_history: []
+			matching_history: this.getUserMatchHistory(user)
 		}
   }
+
+	async getUserMatchHistory(user) {
+		const matching_history = [];
+		const matchList = await this.matchHistoryRepository.findBy({ user_id: user.user_id });
+		for (let m in matchList) {
+			let opponent = await this.userRepository.findOneBy({ id: matchList[m].opponent_id })
+			matching_history.push({
+				opponent_nickname: opponent.nickname,
+				opponent_url: opponent.profile_url,
+				win: (matchList[m].user_score > matchList[m].opponent_score) ? true : false,
+				score: matchList[m].user_score,
+				opponent_score: matchList[m].opponent_score,
+				mode: matchList[m].mode,
+				played_at: matchList[m].playedAt,
+			})
+		}
+		return matching_history;
+	}
 
   async getUserFriends(user) {
 		const friendList = await this.friendRepository.findBy({ user_id: user.user_id });
