@@ -13,8 +13,7 @@ export class ChannelService {
 		private userService: UserService,
 	) {}
 
-	async getAllChannels(headers: any) {
-		const user = await this.userService.findByUser(headers.authorization);
+	async getAllChannels(user) {
 		/* select id, owner_id, access_modifier, name from chat-rooms cr, RoomUserInfo rinfo
 		   where cr.id  */
 		const channels = (await this.chatRoomsRepository.find());
@@ -33,9 +32,7 @@ export class ChannelService {
 		return ret;
 	}
 
-	async getParticipateChannels(headers: any, intra_id: string) {
-		// header 체크
-		const user = await this.userService.findByUser(headers.authorization);
+	async getParticipateChannels(user, intra_id: string) {
 		if (user.intra_id == intra_id) {
 			const rooms = (await this.roomUserInfoRepository.findBy({user_id: user.id}));
 			const ret = []
