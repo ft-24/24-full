@@ -2,13 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
-import { ChatRoomsEntity } from "./entity/chat-rooms.entity";
+import { ChatRoomEntity } from "./entity/chatRoom.entity";
 import { RoomUserInfoEntity } from "./entity/RoomUserInfo.entity";
 
 @Injectable()
 export class ChannelService {
 	constructor(
-		@InjectRepository(ChatRoomsEntity) private chatRoomsRepository: Repository<ChatRoomsEntity>,
+		@InjectRepository(ChatRoomEntity) private chatRoomsRepository: Repository<ChatRoomEntity>,
 		@InjectRepository(RoomUserInfoEntity) private roomUserInfoRepository: Repository<RoomUserInfoEntity>,
 		private userService: UserService,
 	) {}

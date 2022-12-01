@@ -10,6 +10,7 @@ import { ChatGateway } from './chat/chat.gateway';
 import configuration from './config/configuration';
 import { UserModule } from './user/user.module';
 import { ChatModule } from './chat/chat.module';
+import { ChatService } from './chat/chat.service';
 
 @Module({
   imports: [
@@ -41,6 +42,6 @@ import { ChatModule } from './chat/chat.module';
   	ChatModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ChatGateway],
+  providers: [AppService],
 })
 export class AppModule {}
