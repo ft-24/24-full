@@ -1,4 +1,4 @@
-import { Headers, Injectable, Res } from '@nestjs/common';
+import { Headers, Injectable, Logger, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OauthTokenEntity } from 'src/auth/entity/oauthToken.entity';
@@ -19,10 +19,13 @@ export class UserService {
 		@InjectRepository(FriendListEntity) private friendRepository: Repository<FriendListEntity>,
 		private readonly configService: ConfigService,
 	) {}
+	private logger = new Logger(UserService.name);
 
 	async getUserInfo(user) {
+		this.logger.log(user.user_id)
 		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
 		const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: user.user_id });
+		const matchHistory = await this.getUserMatchHistory(user);
 		if (!foundUser || !foundUserStats)
 		{
 			return {};
@@ -37,7 +40,7 @@ export class UserService {
 				ladder_score: foundUserStats.ladder_score,
 				arcade_score: foundUserStats.arcade_score,
 			},
-			matching_history: this.getUserMatchHistory(user)
+			matching_history: matchHistory,
 		}
   }
 
