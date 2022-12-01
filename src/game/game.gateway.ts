@@ -33,4 +33,9 @@ export class GameGateway
     movePlayer(@ConnectedSocket() socket: Socket, @MessageBody() dir: Direction) {
       game.movePlayer(socket, dir);
     }
+
+    @SubscribeMessage('test')
+    testing() {
+      this.logger.log('testing!')
+    }
 }

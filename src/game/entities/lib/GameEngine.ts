@@ -24,9 +24,10 @@ namespace Pong {
         let deltaTime = (startTime - timestamp) * 0.06;
         this.update(deltaTime);
         
-        if (this.players) {
+        const draw = this.draw();
+        if (this.players && draw['ball']) {
           this.players.forEach( s => {
-            s.emit('draw', this.draw());
+            s.emit('draw', draw);
           })
         }
        

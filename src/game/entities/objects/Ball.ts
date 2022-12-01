@@ -47,7 +47,6 @@ export namespace Pong {
       // ball moving
       this.x += this.dx * this.speed * deltaTime;
       this.y += this.dy * this.speed * deltaTime;
-      
 
       // ball hit wall
       if (this.x >= maxX || this.x <= 0) {
@@ -57,8 +56,12 @@ export namespace Pong {
       }
 
       if (this.y >= maxY || this.y <= 0) {
-        this.dy = -this.dy
-        // this.speed = this.speed * 1.05;
+        this.dy = -this.dy;
+        if (this.y >= maxY) {
+          this.y = maxY;
+        } else {
+          this.y = 0;
+        }
       }
     }
 
@@ -73,6 +76,9 @@ export namespace Pong {
         // 5050 chance of direction
         if (Math.random() > 0.5) {
           this.dx = -this.dx;
+        }
+        if (Math.random() > 0.5) {
+          this.dy = -this.dy;
         }
       }, 2000)
     }
