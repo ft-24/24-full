@@ -8,7 +8,7 @@ export class ChatRoomEntity {
 	@Column()
 	owner_id: number;
 
-	@Column()
+	@Column({ unique: true })
 	name: string;
 
 	@Column()
