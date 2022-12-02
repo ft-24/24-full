@@ -34,6 +34,8 @@ export class ChatGateway
           socket.data.sessionID = sessionID;
           socket.data.room = session.room;
           socket.data.user_id = session.user_id;
+        } else {
+          throw new Error("Try again!");
         }
       } else {
         const decoded = this.jwtService.decode(socket.handshake.query.token as string);
@@ -50,7 +52,7 @@ export class ChatGateway
       socket.emit("session", { sessionID: socket.data.sessionID, userID: socket.data.room });
       socket.join(socket.data.room);
     } catch (e) {
-
+      this.logger.log(`Error occured! ${e}`)
     }
   }
 
