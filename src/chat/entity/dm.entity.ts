@@ -8,8 +8,8 @@ export class DMEntity {
 	@Column()
 	sender: number; // user_id
 
-	@Column()
-	receiver: number;
+	// @Column()
+	// receiver: number;
 
 	@Column()
 	chat: string;

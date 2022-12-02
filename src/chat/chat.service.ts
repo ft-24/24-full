@@ -68,12 +68,19 @@ export class ChatService {
   }
 
   async saveDM(socket, msg) {
+    const sender = await this.userRepository.findOneBy({ id: socket.data.user_id })
     const insertedDM = await this.dmRepository.insert({
-      sender: socket.data.user_id,
-      chat: msg,
-      time: Date.now(), 
+      sender: sender.id,
+      chat: msg.msg,
+      time: new Date(),
     });
-    return insertedDM.raw[0];
+    return ({
+      intra_id: sender.intra_id,
+      profile_url: sender.profile_url,
+      nickname: sender.nickname,
+      chat: msg.msg,
+      time: (new Date()).toString(),
+    });
   }
 
   async findRoom(nickname) {
