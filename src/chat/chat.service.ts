@@ -19,16 +19,18 @@ export class ChatService {
     try {
       const foundRoom = await this.chatRoomRepository.findOneBy({ name: room.name });
       if (!foundRoom) {
-
-        const salt = await bcrypt.genSalt();
-        const hash = await bcrypt.hash(room.password, salt);
+		let hash = "";
+		if (room.password) {
+			const salt = await bcrypt.genSalt();
+        	hash = await bcrypt.hash(room.password, salt);
+		}
         const newRoom = {
           owner_id: room.owner_id,
           name: room.name,
           access_modifier: room.access_modifier,
           password: hash,
-          create_data: Date.now(),
-          update_data: Date.now(),
+          create_date: Date.now(),
+          update_date: Date.now(),
         }
         const insertedRoom = await this.chatRoomRepository.insert(newRoom);
         return insertedRoom.raw[0];
