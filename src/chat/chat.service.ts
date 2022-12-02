@@ -68,12 +68,14 @@ export class ChatService {
   }
 
   async saveDM(socket, msg) {
+    this.logger.log(socket.data.user_id)
     const sender = await this.userRepository.findOneBy({ id: socket.data.user_id })
     const insertedDM = await this.dmRepository.insert({
       sender: sender.id,
       chat: msg.msg,
       time: new Date(),
     });
+    this.logger.log(sender.intra_id)
     return ({
       intra_id: sender.intra_id,
       profile_url: sender.profile_url,
