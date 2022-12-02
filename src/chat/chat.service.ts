@@ -52,12 +52,16 @@ export class ChatService {
   }
 
   async saveUser(user_id) {
-    const newUser = {
-      room: `${uuid()}`,
-      user_id: user_id,
+    const foundUser = await this.dmChannelRepository.findOneBy({ user_id: user_id })
+    if (!foundUser) {
+      const newUser = {
+        room: `${uuid()}`,
+        user_id: user_id,
+      }
+      const insertedUser = await this.dmChannelRepository.insert(newUser);
+      return insertedUser.raw[0];
     }
-    const insertedUser = await this.dmChannelRepository.insert(newUser);
-    return insertedUser.raw[0];
+    return foundUser
   }
 
   async findUser(id) {
@@ -68,10 +72,13 @@ export class ChatService {
   }
 
   async saveDM(socket, msg) {
+    this.logger.log(socket.data)
     this.logger.log(socket.data.user_id)
     const sender = await this.userRepository.findOneBy({ id: socket.data.user_id })
+    const receiver = await this.userRepository.findOneBy({ nickname: msg.nickname })
     const insertedDM = await this.dmRepository.insert({
       sender: sender.id,
+      receiver: receiver.id,
       chat: msg.msg,
       time: new Date(),
     });
