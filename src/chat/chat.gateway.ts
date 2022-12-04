@@ -64,14 +64,17 @@ export class ChatGateway
       const to = await this.chatService.findRoom(msg.nickname);
       this.logger.log(to);
       // socket.to(socket.data.room).to(to).emit("dm-message", insertedMSG)
-      socket.to(to).emit("dm-message", insertedMSG)
-      socket.emit("dm-message", insertedMSG);
+      socket.to(to).emit('dm-message', insertedMSG)
+    //   socket.emit('dm-message', insertedMSG);
     }
   }
 
   @SubscribeMessage('message')
-  handleMessage(@ConnectedSocket() socket: Socket, @MessageBody() msg: any): string {
-    return 'Hello world!';
+  async handleMessage(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+	if (msg.msg && msg.room) {
+		const insertedMSG = await this.chatService.saveChat(socket, msg);
+		socket.to(msg.room).emit('message', insertedMSG);
+	}
   }
 
   @SubscribeMessage('create-room')

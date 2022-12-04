@@ -92,6 +92,24 @@ export class ChatService {
     });
   }
 
+  async saveChat(socket, msg) {
+	const sender = await this.userRepository.findOneBy({ id: socket.data.user_id });
+	const room = await this.chatRoomRepository.findOneBy({ name: msg.room })
+	const insertedChat = await this.chatRepository.insert({
+		room_id: room.id,
+		sender: sender.id,
+		chat: msg.msg,
+		time: new Date(),
+	});
+	return ({
+		intra_id: sender.intra_id,
+		profile_url: sender.profile_url,
+		nickname: sender.nickname,
+		chat: msg.msg,
+		time: (new Date()).toString(),
+	})
+  }
+
   async findRoom(nickname) {
     const userId = (await this.userRepository.findOneBy({ nickname: nickname })).id;
     return (await this.dmChannelRepository.findOneBy({ user_id: userId })).room;
