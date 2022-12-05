@@ -8,6 +8,7 @@ import GraphicalElement from "../lib/GraphicalElement"
 import { Logger } from "@nestjs/common";
 import { Socket } from "dgram";
 import { Direction } from "../lib/Directions";
+import { GameService } from "src/game/game.service";
 
 namespace Pong {
   export class MainScene extends Scene {
@@ -19,6 +20,7 @@ namespace Pong {
     private winningScore = Constants.Game.WINNING_SCORE;
 
     private objectsInScene: Array<GraphicalElement> = [];
+    private gameService: GameService;
 
     constructor() {
       super();
@@ -97,10 +99,16 @@ namespace Pong {
         this.ball.restart();
       }
 
-      if (this.player1.getScore() >= this.winningScore) {
-        this.gameContext.loadScene(new EndScene(this.player1), { winner: this.player1 });
-      } else if (this.player2.getScore() >= this.winningScore) {
-        this.gameContext.loadScene(new EndScene(this.player2), { winner: this.player2 });
+      if (this.player1.getScore() >= this.winningScore || this.player2.getScore() >= this.winningScore) {
+        this.gameContext.gameResult(this.gameService.insertGameResult({
+          user1_id: this.gameContext.getPlayer1(),
+          user2_id: this.gameContext.getPlayer2(),
+          win: (this.player1.getScore() >= this.player2.getScore()) ? 1 : 2,
+          user1_score: this.player1.getScore(),
+          user2_score: this.player2.getScore(),
+        }))
+        // should delete both GameEngine & MainScene 
+        delete this.gameContext;
       } else {
         // TODO : Draw remaining objects
         this.objectsInScene.forEach(object => object.update(deltaTime));

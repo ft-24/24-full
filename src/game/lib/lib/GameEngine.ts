@@ -82,8 +82,22 @@ namespace Pong {
         this.scene.getInput(2, dir);
       }
     }
-  }
 
+    gameResult(result) {
+      this.players.forEach( s => {
+        s.emit('result', result);
+      })
+    }
+
+    getPlayer1() {
+      return this.player1.id;
+    }
+
+    getPlayer2() {
+      return this.player2.id;
+    }
+
+  }
 }
 
 export default Pong.GameEngine;

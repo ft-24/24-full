@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
-import { Direction } from './entities/lib/Directions';
-import GameEngine from './entities/lib/GameEngine';
+import { Direction } from './lib/lib/Directions';
+import GameEngine from './lib/lib/GameEngine';
 
 let game;
 
