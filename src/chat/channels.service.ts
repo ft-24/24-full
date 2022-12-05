@@ -1,6 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
 import { ChatRoomEntity } from "./entity/chatRoom.entity";
 import { RoomUserInfoEntity } from "./entity/RoomUserInfo.entity";
@@ -10,7 +9,6 @@ export class ChannelService {
 	constructor(
 		@InjectRepository(ChatRoomEntity) private chatRoomsRepository: Repository<ChatRoomEntity>,
 		@InjectRepository(RoomUserInfoEntity) private roomUserInfoRepository: Repository<RoomUserInfoEntity>,
-		private userService: UserService,
 	) {}
 
 	private logger = new Logger(ChannelService.name);
