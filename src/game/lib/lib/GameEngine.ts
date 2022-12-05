@@ -4,6 +4,7 @@ import MainScene from '../scene/Mainscene';
 import { Direction } from './Directions';
 import { Socket } from 'socket.io';
 import { GameService } from 'src/game/game.service';
+import EndScene from '../scene/EndScene';
 
 namespace Pong {
 
@@ -13,27 +14,30 @@ namespace Pong {
     private players: Socket[] = [];
     private player1: Socket = undefined;
     private player2: Socket = undefined;
+    private ended: boolean = false;
 
     constructor(private gameService: GameService) {
-      let menu = new MainScene(gameService);
+      let menu = new MainScene(gameService, this);
       let startTime: number = Date.now();
       let timestamp: number = startTime;
 
       this.loadScene(menu);
 
       setInterval(() => {
-        let deltaTime = (startTime - timestamp) * 0.06;
-        this.update(deltaTime);
-        
-        const draw = this.draw();
-        if (this.players && draw['ball']) {
-          this.players.forEach( s => {
-            s.emit('draw', draw);
-          })
+        if (!this.ended) {
+          let deltaTime = (startTime - timestamp) * 0.06;
+          this.update(deltaTime);
+          
+          const draw = this.draw();
+          if (this.players && draw['ball']) {
+            this.players.forEach( s => {
+              s.emit('draw', draw);
+            })
+          }
+         
+          timestamp = startTime;
+          startTime = Date.now();
         }
-       
-        timestamp = startTime;
-        startTime = Date.now();
       }, 1000 / 60); // 60 == FPS
     }
 
@@ -85,17 +89,24 @@ namespace Pong {
     }
 
     gameResult(result) {
+      // console.log(result);
+      
       this.players.forEach( s => {
         s.emit('result', result);
       })
+      this.ended = true;
     }
 
     getPlayer1() {
-      return this.player1.id;
+      if (this.player1) {
+        return this.player1.id;
+      }
     }
 
     getPlayer2() {
-      return this.player2.id;
+      if (this.player2) {
+        return this.player2.id;
+      }
     }
 
   }

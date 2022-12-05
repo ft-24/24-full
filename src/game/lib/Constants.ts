@@ -29,7 +29,7 @@ export namespace Pong {
       FPS = 60,
 
       // Score needed to win
-      WINNING_SCORE = 5,
+      WINNING_SCORE = 3,
 
       // Size of canvas
       CANVAS_WIDTH = 1200,

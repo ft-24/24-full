@@ -18,9 +18,9 @@ export class GameService {
     return ({
       p1: user1.nickname,
       p2: user2.nickname,
-      win: insertedResult.win,
-      p1_score: insertedResult.user1_score, 
-      p2_score: insertedResult.user2_score,
+      win: result.win,
+      p1_score: result.user1_score, 
+      p2_score: result.user2_score,
     });
   }
 }
