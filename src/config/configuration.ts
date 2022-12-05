@@ -1,5 +1,7 @@
 export default () => ({
 
+    url: process.env.SERVER_URL,
+
     db: {
         username: process.env.DATABASE_USERNAME,
         password: process.env.DATABASE_PASSWORD,

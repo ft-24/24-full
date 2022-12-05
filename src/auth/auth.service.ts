@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entity/user.entity';
+import { UserStatsEntity } from 'src/user/entity/userStats.entity';
 import { Repository } from 'typeorm';
 import { OauthTokenEntity } from './entity/oauthToken.entity';
 import { TFACodeEntity } from './entity/TFACode.entity';
@@ -13,13 +14,16 @@ export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(UserStatsEntity)
+    private userStatsRepository: Repository<UserStatsEntity>,
     @InjectRepository(OauthTokenEntity)
     private oauthTokenRepository: Repository<OauthTokenEntity>,
     @InjectRepository(TFACodeEntity)
     private tfaCodeRepository: Repository<TFACodeEntity>,
     private jwtService: JwtService,
     private mailerService: MailerService,
-  ){}
+		private readonly configService: ConfigService,
+    ){}
   private logger = new Logger(AuthService.name);
 
   async getToken(user) {
@@ -78,10 +82,21 @@ export class AuthService {
           intra_id: user.int1ra_id,
           nickname: user.intra_id,
           email: user.email,
-          profile_url: "",
+          profile_url: `${this.configService.get('url')}/upload/default.png`,
         }
         const insertedUser = await this.userRepository.insert(newUser);
+        const newUserStats = {
+          user_id: insertedUser.raw[0].id,
+        }
+        await this.userStatsRepository.insert(newUserStats);
         return insertedUser.raw[0];
+      }
+      const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: foundUser.id });
+      if (!foundUserStats) {
+        const newUserStats = {
+          user_id: foundUser.id,
+        }
+        await this.userStatsRepository.insert(newUserStats);
       }
       return foundUser;
     } catch(e) {

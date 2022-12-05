@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+# image upload
+/upload
+
 # Logs
 logs
 *.log
