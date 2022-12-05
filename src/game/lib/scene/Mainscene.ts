@@ -20,9 +20,8 @@ namespace Pong {
     private winningScore = Constants.Game.WINNING_SCORE;
 
     private objectsInScene: Array<GraphicalElement> = [];
-    private gameService: GameService;
 
-    constructor() {
+    constructor(private gameService: GameService) {
       super();
       const width = Constants.Game.CANVAS_WIDTH;
       const height = Constants.Game.CANVAS_HEIGHT;

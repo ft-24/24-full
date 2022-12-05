@@ -3,6 +3,7 @@ import Scene from './Scene';
 import MainScene from '../scene/Mainscene';
 import { Direction } from './Directions';
 import { Socket } from 'socket.io';
+import { GameService } from 'src/game/game.service';
 
 namespace Pong {
 
@@ -13,8 +14,8 @@ namespace Pong {
     private player1: Socket = undefined;
     private player2: Socket = undefined;
 
-    constructor() {
-      let menu = new MainScene();
+    constructor(private gameService: GameService) {
+      let menu = new MainScene(gameService);
       let startTime: number = Date.now();
       let timestamp: number = startTime;
 

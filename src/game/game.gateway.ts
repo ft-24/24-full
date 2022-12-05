@@ -1,22 +1,24 @@
 import { Logger } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import { GameService } from './game.service';
 import { Direction } from './lib/lib/Directions';
 import GameEngine from './lib/lib/GameEngine';
 
 let game;
 
 @WebSocketGateway({
-  namespace: 'game',
-  
+  // namespace: 'game',
 })
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+    constructor (private gameService: GameService)
+    {}
     @WebSocketServer() nsp: Namespace;
     private logger = new Logger(GameGateway.name);
 
     afterInit(server: any) {
-      game = new GameEngine();
+      game = new GameEngine(this.gameService);
     }
 
     handleConnection(@ConnectedSocket() socket: Socket, ...args: any[]) {
@@ -37,5 +39,10 @@ export class GameGateway
     @SubscribeMessage('test')
     testing() {
       this.logger.log('testing!')
+    }
+
+    @SubscribeMessage('ready')
+    playerReady(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      this.logger.log(msg);
     }
 }
