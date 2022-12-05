@@ -11,6 +11,7 @@ import configuration from './config/configuration';
 import { UserModule } from './user/user.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatService } from './chat/chat.service';
+import { ChannelModule } from './chat/channels.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ChatService } from './chat/chat.service';
     AuthModule,
   	UserModule,
   	ChatModule,
+    ChannelModule,
   ],
   controllers: [AppController],
   providers: [AppService],

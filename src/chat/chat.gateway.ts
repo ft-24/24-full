@@ -59,27 +59,26 @@ export class ChatGateway
   @SubscribeMessage('dm-message')
   async handleDM(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
     this.logger.log(msg);
-    if (msg.msg && msg.nickname) {
+    if (msg.msg && msg.receiver) {
       const insertedMSG = await this.chatService.saveDM(socket, msg);
-      const to = await this.chatService.findRoom(msg.nickname);
+      const to = await this.chatService.findRoom(msg.receiver);
       this.logger.log(to);
-      // socket.to(socket.data.room).to(to).emit("dm-message", insertedMSG)
-      socket.to(to).emit('dm-message', insertedMSG)
-    //   socket.emit('dm-message', insertedMSG);
+      socket.to(socket.data.room).to(to).emit("dm-message", insertedMSG)
+      // socket.to(to).emit('dm-message', insertedMSG)
     }
   }
 
   @SubscribeMessage('message')
-  async handleMessage(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
-	if (msg.msg && msg.room) {
-		const insertedMSG = await this.chatService.saveChat(socket, msg);
-		socket.to(msg.room).emit('message', insertedMSG);
-	}
+    async handleMessage(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+    if (msg.msg && msg.receiver) {
+      const insertedMSG = await this.chatService.saveChat(socket, msg);
+      socket.to(msg.receiver).emit('message', insertedMSG);
+    }
   }
 
   @SubscribeMessage('create-room')
-  createRoom() {
-    this.chatService.createNewRoom(undefined);
+  async createRoom(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+    this.chatService.createNewRoom(msg);
   }
 
   @SubscribeMessage('edit-room')

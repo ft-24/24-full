@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
@@ -13,16 +13,14 @@ export class ChannelService {
 		private userService: UserService,
 	) {}
 
+	private logger = new Logger(ChannelService.name);
+
 	async getAllChannels(user) {
 		/* select id, owner_id, access_modifier, name from chat-rooms cr, RoomUserInfo rinfo
 		   where cr.id  */
-		const channels = (await this.chatRoomsRepository.find());
+		const channels = ( await this.chatRoomsRepository.find() );
 		const ret = []
 		for (let ch in channels) {
-			let roominfo = await this.roomUserInfoRepository.findOneBy({id: channels[ch].id, user_id: user.id})
-			if (roominfo.ban == true) {
-				continue
-			}
 			ret.push({
 				room_id: channels[ch].id,
 				name: channels[ch].name,

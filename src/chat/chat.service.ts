@@ -29,11 +29,11 @@ export class ChatService {
     try {
       const foundRoom = await this.chatRoomRepository.findOneBy({ name: room.name });
       if (!foundRoom) {
-		let hash = "";
-		if (room.password) {
-			const salt = await bcrypt.genSalt();
-        	hash = await bcrypt.hash(room.password, salt);
-		}
+        let hash = "";
+        if (room.password) {
+          const salt = await bcrypt.genSalt();
+          hash = await bcrypt.hash(room.password, salt);
+        }
         const newRoom = {
           owner_id: room.owner_id,
           name: room.name,
@@ -75,7 +75,7 @@ export class ChatService {
     this.logger.log(socket.data)
     this.logger.log(socket.data.user_id)
     const sender = await this.userRepository.findOneBy({ id: socket.data.user_id })
-    const receiver = await this.userRepository.findOneBy({ nickname: msg.nickname })
+    const receiver = await this.userRepository.findOneBy({ nickname: msg.receiver })
     const insertedDM = await this.dmRepository.insert({
       sender: sender.id,
       receiver: receiver.id,
@@ -93,21 +93,23 @@ export class ChatService {
   }
 
   async saveChat(socket, msg) {
-	const sender = await this.userRepository.findOneBy({ id: socket.data.user_id });
-	const room = await this.chatRoomRepository.findOneBy({ name: msg.room })
-	const insertedChat = await this.chatRepository.insert({
-		room_id: room.id,
-		sender: sender.id,
-		chat: msg.msg,
-		time: new Date(),
-	});
-	return ({
-		intra_id: sender.intra_id,
-		profile_url: sender.profile_url,
-		nickname: sender.nickname,
-		chat: msg.msg,
-		time: (new Date()).toString(),
-	})
+    const sender = await this.userRepository.findOneBy({ id: socket.data.user_id });
+    const room = await this.chatRoomRepository.findOneBy({ name: msg.receiver })
+    if (room && sender) {
+      const insertedChat = await this.chatRepository.insert({
+        room_id: room.id,
+        sender: sender.id,
+        chat: msg.msg,
+        time: new Date(),
+      });
+    }
+    return ({
+      intra_id: sender.intra_id,
+      profile_url: sender.profile_url,
+      nickname: sender.nickname,
+      chat: msg.msg,
+      time: (new Date()).toString(),
+    })
   }
 
   async findRoom(nickname) {
