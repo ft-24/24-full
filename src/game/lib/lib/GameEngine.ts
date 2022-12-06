@@ -32,9 +32,9 @@ namespace Pong {
       setInterval(() => {
         if (!this.ended) {
           let deltaTime = (startTime - timestamp) * 0.06;
-          this.update(deltaTime);
+          this.scene.update(deltaTime);
           
-          const draw = this.draw();
+          const draw = this.scene.draw();
           if (this.players && draw['ball']) {
             this.nsp.to(this.id).emit('draw', draw);
           }
@@ -45,12 +45,12 @@ namespace Pong {
       }, 1000 / 60); // 60 == FPS
     }
 
-    draw() {
-      return this.scene.draw();
+    ready() {
+      
     }
 
-    update(deltaTime: number) {
-      this.scene.update(deltaTime);
+    disconnect() {
+      
     }
 
     loadScene(newScene: Scene, params?: object) {

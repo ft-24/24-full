@@ -6,6 +6,7 @@ import { Direction } from './lib/lib/Directions';
 import GameEngine from './lib/lib/GameEngine';
 
 let Games: GameEngine[] = [];
+let PrivateGames: GameEngine[] = [];
 let LadderGames: GameEngine[] = [];
 
 @WebSocketGateway({
@@ -44,6 +45,7 @@ export class GameGateway
     @SubscribeMessage('leave')
     removePlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
       // socket이 join 되어있는 게임을 받고, 해당 게임의 disconnect 함수를 호출
+      // 필요하다면 방이 삭제되고 방 리스트를 emit
       // 필요하다면 소켓에게 leave-room emit
     }
 
@@ -59,5 +61,6 @@ export class GameGateway
 
     handleDisconnect(@ConnectedSocket() socket: Socket) {
       // socket이 join 되어있던 게임을 받고, 해당 게임의 disconnect 함수를 호출
+      // 필요하다면 방이 삭제되고 방 리스트를 emit
     }
 }
