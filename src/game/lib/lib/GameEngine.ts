@@ -14,7 +14,6 @@ namespace Pong {
     private id: string;
     private name: string;
     private nsp: Namespace;
-    private players: Socket[] = [];
     private player1: Socket = undefined;
     private player2: Socket = undefined;
     private ended: boolean = false;
@@ -35,7 +34,7 @@ namespace Pong {
           this.scene.update(deltaTime);
           
           const draw = this.scene.draw();
-          if (this.players && draw['ball']) {
+          if (draw['ball']) {
             this.nsp.to(this.id).emit('draw', draw);
           }
          
@@ -50,7 +49,41 @@ namespace Pong {
     }
 
     disconnect() {
-      
+
+    }
+
+    join(socket: Socket) {
+      socket.join(this.id)
+      if (this.player1 == undefined) {
+        this.player1 = socket;
+      } else if (this.player2 == undefined) {
+        this.player2 = socket;
+      }
+    }
+
+    move(socket: Socket, dir: Direction) {
+      if (socket == this.player1) {
+        this.scene.getInput(1, dir);
+      } else if (socket == this.player2) {
+        this.scene.getInput(2, dir);
+      }
+    }
+
+    gameResult(result) {
+      this.nsp.to(this.id).emit('result', result);
+      this.ended = true;
+    }
+
+    getPlayer1() {
+      if (this.player1) {
+        return this.player1.id;
+      }
+    }
+
+    getPlayer2() {
+      if (this.player2) {
+        return this.player2.id;
+      }
     }
 
     loadScene(newScene: Scene, params?: object) {
@@ -65,52 +98,6 @@ namespace Pong {
         params = {};
       }
       this.scene.load(params);
-    }
-
-
-    addPlayer(socket: Socket) {
-      socket.join(this.id)
-      if (this.player1 == undefined) {
-        this.player1 = socket;
-      } else if (this.player2 == undefined) {
-        this.player2 = socket;
-      }
-    }
-
-    delPlayer(socket: Socket) {
-      if (this.player1 == socket)
-        this.player1 = undefined;
-      if (this.player2 == socket)
-        this.player2 = undefined;
-    }
-
-    movePlayer(socket: Socket, dir: Direction) {
-      if (socket == this.player1) {
-        this.scene.getInput(1, dir);
-      } else if (socket == this.player2) {
-        this.scene.getInput(2, dir);
-      }
-    }
-
-    gameResult(result) {
-      // console.log(result);
-      
-      this.players.forEach( s => {
-        s.emit('result', result);
-      })
-      this.ended = true;
-    }
-
-    getPlayer1() {
-      if (this.player1) {
-        return this.player1.id;
-      }
-    }
-
-    getPlayer2() {
-      if (this.player2) {
-        return this.player2.id;
-      }
     }
 
   }
