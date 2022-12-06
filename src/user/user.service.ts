@@ -21,19 +21,17 @@ export class UserService {
 	) {}
 	private logger = new Logger(UserService.name);
 
-	async getUserInfo(user) {
-		this.logger.log(user.user_id)
-		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
+	async getInfo(user) {
 		const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: user.user_id });
 		const matchHistory = await this.getUserMatchHistory(user);
-		if (!foundUser || !foundUserStats)
+		if (!user || !foundUserStats)
 		{
-			return {};
+			return null;
 		}
 		return {
-			intra_id: foundUser.intra_id,
-			nickname: foundUser.nickname,
-			profile_url: foundUser.profile_url,
+			intra_id: user.intra_id,
+			nickname: user.nickname,
+			profile_url: user.profile_url,
 			stats: {
 				wins: foundUserStats.wins,
 				loses: foundUserStats.loses,
@@ -42,6 +40,11 @@ export class UserService {
 			},
 			matching_history: matchHistory,
 		}
+	}
+
+	async getUserInfo(user) {
+		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
+		return await this.getInfo(foundUser);
   }
 
 	async getUserMatchHistory(user) {
@@ -77,13 +80,10 @@ export class UserService {
 
   async getFriendsProfile(id) {
 		const user = await this.userRepository.findOneBy({ intra_id: id });
-		return {
-			intra_id: user.intra_id,
-			image: user.profile_url,
-			nickname: user.nickname,
-			stats: [],
-			matching_history: []
+		if (!user) {
+			return null;
 		}
+		return await this.getInfo(user);
   }
 
 	async changeUserNickname(user, nickname) {
