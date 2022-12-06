@@ -22,7 +22,7 @@ export class UserService {
 	private logger = new Logger(UserService.name);
 
 	async getInfo(user) {
-		const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: user.user_id });
+		const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: user.id });
 		const matchHistory = await this.getUserMatchHistory(user);
 		if (!user || !foundUserStats)
 		{
@@ -49,7 +49,7 @@ export class UserService {
 
 	async getUserMatchHistory(user) {
 		const matching_history = [];
-		const matchList = await this.matchHistoryRepository.findBy({ user_id: user.user_id });
+		const matchList = await this.matchHistoryRepository.findBy({ user_id: user.id });
 		for (let m in matchList) {
 			let opponent = await this.userRepository.findOneBy({ id: matchList[m].opponent_id })
 			matching_history.push({
