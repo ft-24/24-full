@@ -2,7 +2,7 @@ import Utils from './Utils';
 import Scene from './Scene';
 import MainScene from '../scene/Mainscene';
 import { Direction } from './Directions';
-import { Socket } from 'socket.io';
+import { Namespace, Socket } from 'socket.io';
 import { GameService } from 'src/game/game.service';
 import EndScene from '../scene/EndScene';
 
@@ -11,12 +11,18 @@ namespace Pong {
   export class GameEngine {
 
     private scene!: Scene;
+    private id: string;
+    private name: string;
+    private nsp: Namespace;
     private players: Socket[] = [];
     private player1: Socket = undefined;
     private player2: Socket = undefined;
     private ended: boolean = false;
 
-    constructor(private gameService: GameService) {
+    constructor() {
+    }
+    
+    start(gameService: GameService) {
       let menu = new MainScene(gameService, this);
       let startTime: number = Date.now();
       let timestamp: number = startTime;
@@ -30,9 +36,7 @@ namespace Pong {
           
           const draw = this.draw();
           if (this.players && draw['ball']) {
-            this.players.forEach( s => {
-              s.emit('draw', draw);
-            })
+            this.nsp.to(this.id).emit('draw', draw);
           }
          
           timestamp = startTime;
@@ -65,7 +69,7 @@ namespace Pong {
 
 
     addPlayer(socket: Socket) {
-      this.players.push(socket);
+      socket.join(this.id)
       if (this.player1 == undefined) {
         this.player1 = socket;
       } else if (this.player2 == undefined) {
