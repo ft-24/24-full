@@ -1,20 +1,20 @@
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('ChatRoom')
-export class ChatRoomsEntity {
+export class ChatRoomEntity {
 	@PrimaryGeneratedColumn('rowid')
 	id: number;
 
 	@Column()
 	owner_id: number;
 
-	@Column()
+	@Column({ unique: true })
 	name: string;
 
 	@Column()
 	access_modifier: string;
 
-	@Column()
+	@Column({ nullable: true })
 	password: string;
 
 	@Column()

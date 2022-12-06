@@ -6,9 +6,13 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ChatGateway } from './chat/chat.gateway';
 import configuration from './config/configuration';
 import { GameModule } from './game/game.module';
 import { UserModule } from './user/user.module';
+import { ChatModule } from './chat/chat.module';
+import { ChatService } from './chat/chat.service';
+import { ChannelModule } from './chat/channels.module';
 
 @Module({
   imports: [
@@ -37,6 +41,8 @@ import { UserModule } from './user/user.module';
     }),
     AuthModule,
   	UserModule,
+  	ChatModule,
+    ChannelModule,
     GameModule,
   ],
   controllers: [AppController],
