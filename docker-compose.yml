@@ -12,10 +12,11 @@ services:
   #     - "noderedis"
   front: 
     build: 
-      context: "."
+      context: "./24-front"
       dockerfile: Dockerfile 
     container_name: "front" 
     working_dir: "/app/front" 
+    env_file: .env
     ports: 
       - "5173:5173"
   # noderedis: 
