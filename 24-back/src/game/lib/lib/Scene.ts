@@ -20,6 +20,8 @@ namespace Pong {
     load(params: object): void {}
     unload(): void {}
 
+    async end(win: any) {}
+
     setGameContext(game: GameEngine) {
       this.gameContext = game;
     }

@@ -6,7 +6,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entity/user.entity';
 import { UserStatsEntity } from 'src/user/entity/userStats.entity';
 import { Repository } from 'typeorm';
-import { OauthTokenEntity } from './entity/oauthToken.entity';
 import { TFACodeEntity } from './entity/TFACode.entity';
 
 @Injectable()
@@ -16,8 +15,6 @@ export class AuthService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(UserStatsEntity)
     private userStatsRepository: Repository<UserStatsEntity>,
-    @InjectRepository(OauthTokenEntity)
-    private oauthTokenRepository: Repository<OauthTokenEntity>,
     @InjectRepository(TFACodeEntity)
     private tfaCodeRepository: Repository<TFACodeEntity>,
     private jwtService: JwtService,
@@ -46,25 +43,25 @@ export class AuthService {
     });
   }
 
-  async issueAccessToken(user) {
-    const getUserId = await (await this.userRepository.findOneBy({ id: user.user_id }));
-    if (getUserId) {
-      const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: getUserId.id })
-      if (foundUser) {
-        this.oauthTokenRepository.delete(foundUser);
-      }
-      const access_token = this.jwtService.sign({}, {
-        expiresIn: `3d`,
-      });
+  // async issueAccessToken(user) {
+  //   const getUserId = await (await this.userRepository.findOneBy({ id: user.user_id }));
+  //   if (getUserId) {
+  //     const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: getUserId.id })
+  //     if (foundUser) {
+  //       this.oauthTokenRepository.delete(foundUser);
+  //     }
+  //     const access_token = this.jwtService.sign({}, {
+  //       expiresIn: `3d`,
+  //     });
 
-      this.oauthTokenRepository.insert({
-        user_id: getUserId.id,
-        access_token: access_token,
-      });
+  //     this.oauthTokenRepository.insert({
+  //       user_id: getUserId.id,
+  //       access_token: access_token,
+  //     });
 
-      return (access_token);
-    }
-  }
+  //     return (access_token);
+  //   }
+  // }
 
   // async destroyOauthTokens(token) {
   //   const decoded = this.jwtService.decode(token);
@@ -74,7 +71,7 @@ export class AuthService {
   //   }
   // }
 
-  async signup(user): Promise<UserEntity> {
+  async signup(user): Promise<any> {
     try {
       const foundUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
       if (!foundUser) {
@@ -89,7 +86,9 @@ export class AuthService {
           user_id: insertedUser.raw[0].id,
         }
         await this.userStatsRepository.insert(newUserStats);
-        return insertedUser.raw[0];
+        return ({
+			id: insertedUser.raw[0].id,
+		});
       }
       const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: foundUser.id });
       if (!foundUserStats) {

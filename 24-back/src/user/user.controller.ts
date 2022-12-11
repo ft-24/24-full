@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Head, Headers, Logger, Param, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Head, Headers, Logger, Param, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { User } from 'src/auth/user.decorator';
@@ -23,11 +23,19 @@ export class UserController {
     );
   }
 
+  @Get('profiles')
+  @UseGuards(JwtAuthGuard)
+  async getUsersInfo(@Res() res, @User() user) {
+    return res.status(200).send(
+      await this.userService.getUsersInfo(user)
+    );
+  }
+
   @Get('profile/:intra_id')
   @UseGuards(JwtAuthGuard)
-  async getFriendsProfile(@Res() res, @Param('intra_id') id) {
+  async getFriendsProfile(@Res() res, @User() user, @Param('intra_id') id) {
     return res.status(200).send(
-      await this.userService.getFriendsProfile(id)
+      await this.userService.getFriendsProfile(user, id)
     );
   }
 
@@ -47,7 +55,7 @@ export class UserController {
     if (nickname) {
       await this.userService.changeUserNickname(user, nickname)
     }
-    if (two_auth) {
+    if (two_auth !== undefined) {
       await this.userService.changeUserTFA(user, two_auth)
     }
     if (arcade) {
@@ -58,6 +66,34 @@ export class UserController {
     }
     return res.status(200).send(
       await this.userService.getUserInfo(user)
+    );
+  }
+
+  @Put('friends')
+  @UseGuards(JwtAuthGuard)
+  async updateUserFriends(@Res() res, @User() user, @Body() body) {
+    const { intra_id } = body;
+    return res.status(200).send(
+      await this.userService.addUserFriend(user, intra_id),
+    );
+  }
+
+  @Delete('friends')
+  @UseGuards(JwtAuthGuard)
+  async deleteUserFriends(@Res() res, @User() user, @Body() body) {
+    const { intra_id } = body;
+    return res.status(200).send(
+      await this.userService.removeUserFriend(user, intra_id),
+    );
+  }
+
+
+  @Put('block')
+  @UseGuards(JwtAuthGuard)
+  async blockUser(@Res() res, @User() user, @Body() body) {
+    const { intra_id, is_blocked } = body;
+    return res.status(200).send(
+      await this.userService.blockUser(user, intra_id, is_blocked),
     );
   }
 }

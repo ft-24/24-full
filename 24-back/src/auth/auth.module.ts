@@ -7,7 +7,6 @@ import { join } from 'path';
 import { UserEntity } from 'src/user/entity/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { OauthTokenEntity } from './entity/oauthToken.entity';
 import { ftOAuthStrategy } from './strategy/ftOAuth.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
@@ -25,7 +24,7 @@ import { UserStatsEntity } from 'src/user/entity/userStats.entity';
         },
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity, UserStatsEntity, OauthTokenEntity, TFACodeEntity]),
+    TypeOrmModule.forFeature([UserEntity, UserStatsEntity, TFACodeEntity]),
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {

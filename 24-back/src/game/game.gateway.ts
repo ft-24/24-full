@@ -4,63 +4,141 @@ import { Namespace, Socket } from 'socket.io';
 import { GameService } from './game.service';
 import { Direction } from './lib/lib/Directions';
 import GameEngine from './lib/lib/GameEngine';
+import { v4 as uuid } from 'uuid';
 
 let Games: GameEngine[] = [];
 let PrivateGames: GameEngine[] = [];
 let LadderGames: GameEngine[] = [];
 
 @WebSocketGateway({
-  // namespace: 'game',
+  namespace: '24',
 })
 export class GameGateway
   implements OnGatewayDisconnect {
-    constructor (private gameService: GameService)
-    {}
+    constructor (
+      private gameService: GameService
+    ){}
+
     @WebSocketServer() nsp: Namespace;
     private logger = new Logger(GameGateway.name);
 
     @SubscribeMessage('refresh')
-    sendBackRoomList(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
-      // 방 리스트 리턴
+    async sendBackRoomList(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      socket.emit('list', await this.gameService.getPublicRooms(Games, socket));
+    }
+
+    @SubscribeMessage('get')
+    async getRoomInfo(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      const room = this.gameService.getGameById([...Games, ...PrivateGames, ...LadderGames], msg.id);
+      if (room) {
+        socket.emit('get', await this.gameService.getInfoByGame(room, socket))
+      }
     }
 
     @SubscribeMessage('queue')
-    queuePlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
-      // LadderGames 에 현재 대기 중인 게임이 있는지 확인, 있다면 join 후 enter-room emit
-      // 대기 중인 게임이 없다면 LadderGames에 새로운 방 생성 후 join
+    async queuePlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      const foundRoom = this.gameService.matchMaking(LadderGames);
+      if (foundRoom) {
+        foundRoom.join(socket);
+        this.nsp.to(foundRoom.getID()).emit('enter-room', await this.gameService.getInfoByGame(foundRoom, socket))
+        this.nsp.to(foundRoom.getID()).emit('get', await this.gameService.getInfoByGame(foundRoom, socket))
+      } else {
+        const newRoomID = uuid();
+        const creadtedGame = LadderGames.push(new GameEngine(newRoomID, '', `ladder`, this.nsp));
+        LadderGames[creadtedGame - 1].join(socket);
+      }
+    }
+
+    @SubscribeMessage('unqueue')
+    unqueuePlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      const joinedGame = this.gameService.getJoinedGame(LadderGames, socket);
+      if (joinedGame && joinedGame.disconnect(socket)) {
+        if (LadderGames.findIndex((g)=>{return g == joinedGame}) >= 0) {
+          LadderGames.splice(LadderGames.findIndex((g)=>{return g == joinedGame}), 1)
+        }
+      }
     }
 
     @SubscribeMessage('make-room')
-    makeRoom(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+    async makeRoom(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      if (msg.access_modifier == 'public') {
+        const newRoomID = uuid();
+        const creadtedGame = Games.push(new GameEngine(newRoomID, msg.name, msg.access_modifier, this.nsp));
+        return newRoomID;
+      } else if (msg.access_modifier == 'private') {
+        const newRoomID = uuid();
+        const creadtedGame = PrivateGames.push(new GameEngine(newRoomID, '', msg.access_modifier, this.nsp));
+        const opponent = await this.gameService.findSocketByIntra(this.nsp, msg.name);
+        if (opponent) {
+          opponent.emit('invite', await this.gameService.getInfoByGame(PrivateGames[creadtedGame - 1], opponent))
+        }
+        return newRoomID;
+      }
       // msg에 포함된 name과 임의로 생성한 id로 새로운 게임 생성, 그 후 join
       // room이 새로 생겼으므로 모든 소켓에게 새로운 방이 생성되었음을 emit, id & name
     }
 
     @SubscribeMessage('join')
-    joinPlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
-      // 주어진 id에 해당하는 게임이 있는지 확인, 존재한다면 join 후 enter-room emit
-      // 먼저 방에 존재했던 socket에게도 enter-room emit
+    async joinPlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      const joiningRoom = this.gameService.getGameById([...Games, ...PrivateGames, ...LadderGames], msg.id);
+      if (joiningRoom) {
+        joiningRoom.join(socket)
+        this.nsp.to(joiningRoom.getID()).emit('enter-room', await this.gameService.getInfoByGame(joiningRoom, socket))
+        this.nsp.to(joiningRoom.getID()).emit('get', await this.gameService.getInfoByGame(joiningRoom, socket))
+      }
     }
 
     @SubscribeMessage('leave')
-    removePlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
-      // socket이 join 되어있는 게임을 받고, 해당 게임의 disconnect 함수를 호출
-      // 필요하다면 방이 삭제되고 방 리스트를 emit
-      // 필요하다면 소켓에게 leave-room emit
+    async removePlayer(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      const joinedGame = this.gameService.getJoinedGame([...Games, ...PrivateGames, ...LadderGames], socket);
+      if (joinedGame) {
+        if (joinedGame.disconnect(socket)) {
+         if (Games.findIndex((g)=>{return g == joinedGame}) >= 0) {
+          Games.splice(Games.findIndex((g)=>{return g == joinedGame}), 1)
+         }
+         if (PrivateGames.findIndex((g)=>{return g == joinedGame}) >= 0) {
+          PrivateGames.splice(PrivateGames.findIndex((g)=>{return g == joinedGame}), 1)
+         }
+         if (LadderGames.findIndex((g)=>{return g == joinedGame}) >= 0) {
+          LadderGames.splice(LadderGames.findIndex((g)=>{return g == joinedGame}), 1)
+         }
+        }
+        this.nsp.to(joinedGame.getID()).emit('get', await this.gameService.getInfoByGame(joinedGame, socket))
+      }
     }
 
     @SubscribeMessage('ready')
-    playerReady(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
-      // socket이 join 되어있는 게임을 받고, 해당 게임의 ready 함수를 소켓과 상태를 파라미터로 호출
+    async playerReady(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+      const joinedGame = this.gameService.getJoinedGame([...Games, ...PrivateGames, ...LadderGames], socket);
+      if (joinedGame) { 
+        joinedGame.ready(socket, msg.is_ready, this.gameService);
+        this.nsp.to(joinedGame.getID()).emit('get', await this.gameService.getInfoByGame(joinedGame, socket))
+      }
     }
 
     @SubscribeMessage('move')
     movePlayer(@ConnectedSocket() socket: Socket, @MessageBody() dir: Direction) {
-      // socket이 join 되어있는 게임을 받고, 해당 게임의 move 함수를 소켓과 방향을 파라미터로 호출
+      const joinedGame = this.gameService.getJoinedGame([...Games, ...PrivateGames, ...LadderGames], socket);
+      if (joinedGame) {
+        joinedGame.move(socket, dir);
+      } 
     }
 
-    handleDisconnect(@ConnectedSocket() socket: Socket) {
-      // socket이 join 되어있던 게임을 받고, 해당 게임의 disconnect 함수를 호출
-      // 필요하다면 방이 삭제되고 방 리스트를 emit
+    async handleDisconnect(@ConnectedSocket() socket: Socket) {
+      const joinedGame = this.gameService.getJoinedGameBySocket([...Games, ...PrivateGames, ...LadderGames], socket);
+      if (joinedGame) {
+        if (joinedGame.disconnect(socket)) {
+         if (Games.findIndex((g)=>{return g == joinedGame}) >= 0) {
+          Games.splice(Games.findIndex((g)=>{return g == joinedGame}), 1)
+         }
+         if (PrivateGames.findIndex((g)=>{return g == joinedGame}) >= 0) {
+          PrivateGames.splice(PrivateGames.findIndex((g)=>{return g == joinedGame}), 1)
+         }
+         if (LadderGames.findIndex((g)=>{return g == joinedGame}) >= 0) {
+          LadderGames.splice(LadderGames.findIndex((g)=>{return g == joinedGame}), 1)
+         }
+        }
+        this.nsp.to(joinedGame.getID()).emit('get', await this.gameService.getInfoByGame(joinedGame, socket))
+      }
     }
 }

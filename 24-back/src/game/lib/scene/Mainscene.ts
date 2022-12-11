@@ -19,6 +19,7 @@ namespace Pong {
     private player1: HumanPlayer;
     private player2: HumanPlayer;
     private winningScore = Constants.Game.WINNING_SCORE;
+    private ended = false;
 
     private objectsInScene: Array<GraphicalElement> = [];
 
@@ -101,17 +102,26 @@ namespace Pong {
       }
 
       if (this.player1.getScore() >= this.winningScore || this.player2.getScore() >= this.winningScore) {
-        this.gameContext.gameResult(await this.gameService.insertGameResult({
-          user1_id: 1,
-          user2_id: 2,
-          win: (this.player1.getScore() >= this.player2.getScore()) ? 1 : 2,
-          user1_score: this.player1.getScore(),
-          user2_score: this.player2.getScore(),
-        }))
+        if (!this.ended) {
+          this.end(undefined)
+          this.ended = true;
+        }
       } else {
         // TODO : Draw remaining objects
         this.objectsInScene.forEach(object => object.update(deltaTime));
       }
+    }
+
+    async end(win) {
+      if (this.gameContext.getPlayer1().data && this.gameContext.getPlayer2().data)
+      this.gameContext.gameResult(await this.gameService.insertGameResult({
+        user1_id: this.gameContext.getPlayer1().data.user_id,
+        user2_id: this.gameContext.getPlayer2().data.user_id,
+        win: (win) ? win : ((this.player1.getScore() >= this.player2.getScore()) ? 1 : 2),
+        user1_score: this.player1.getScore(),
+        user2_score: this.player2.getScore(),
+        mode: this.gameContext.getAccess(),
+      }))
     }
 
     restart() {

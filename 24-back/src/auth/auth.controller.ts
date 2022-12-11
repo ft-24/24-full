@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Logger, Param, Post, Query, Redirect, Req, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { TFACodeEntity } from './entity/TFACode.entity';
 import { ftOAuthGuard } from './guard/ftOAuth.guard';
@@ -7,7 +8,10 @@ import { User } from './user.decorator';
 
 @Controller()
 export class AuthController {
-    constructor(private readonly authService: AuthService){}
+    constructor(
+		private readonly authService: AuthService,
+		private readonly configService: ConfigService
+	){}
     private logger = new Logger(AuthController.name);
     
     @Get('login')
@@ -20,17 +24,18 @@ export class AuthController {
     @UseGuards(ftOAuthGuard)
     @Redirect()
     async loggedin(@User() user) {
-        this.logger.log('Logged in succesfully!');
-
         const userData = await this.authService.signup(user);
 
-        if (userData.two_factor_Auth) {
+		if (userData.two_factor_Auth == undefined) {
+			const token = await this.authService.getToken(userData);
+			return { url: `${ this.configService.get('client_url') }/init?token=${ token.access_token }` };
+		} else if (userData.two_factor_Auth) {
             const tfa = await this.authService.generate2FA(userData);
-            return { url: 'http://localhost:5173/tfa?id=' + tfa };
+            return { url: `${ this.configService.get('client_url') }/tfa?id=${ tfa }` };
         }
 
         const token = await this.authService.getToken(userData);
-        return { url: 'http://localhost:5173/auth?token=' + token.access_token };
+		return { url: `${ this.configService.get('client_url') }/auth?token=${ token.access_token }` };
     }
 
     @Post('login/tfa')

@@ -17,8 +17,11 @@ export class MatchHistoryEntity {
   @Column()
   opponent_score: number;
 
-  @Column({ default: "global" })
+  @Column({ default: "public" })
   mode: string;
+
+  @Column()
+  win: boolean;
 
   @CreateDateColumn()
   playedAt: Date;

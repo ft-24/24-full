@@ -20,6 +20,6 @@ export class UserEntity {
 	@Column({ default: false })
 	two_factor_Auth: boolean;
 
-	@Column({ default: 0 })
-	score: number;
+	@Column({ default: false })
+	online: boolean;
 }

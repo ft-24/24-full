@@ -1,9 +1,9 @@
 import { Headers, Injectable, Logger, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OauthTokenEntity } from 'src/auth/entity/oauthToken.entity';
 import { Repository } from 'typeorm';
 import { UserInfoDto } from './dto/userInfo.dto';
+import { BlockedUserEntity } from './entity/blockedUser.entity';
 import { FriendListEntity } from './entity/friendList.entity';
 import { MatchHistoryEntity } from './entity/matchHistory.entity';
 import { UserEntity } from './entity/user.entity';
@@ -15,8 +15,8 @@ export class UserService {
 		@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
 		@InjectRepository(UserStatsEntity) private userStatsRepository: Repository<UserStatsEntity>,
 		@InjectRepository(MatchHistoryEntity) private matchHistoryRepository: Repository<MatchHistoryEntity>,
-		@InjectRepository(OauthTokenEntity) private tokenRepository: Repository<OauthTokenEntity>,
 		@InjectRepository(FriendListEntity) private friendRepository: Repository<FriendListEntity>,
+		@InjectRepository(BlockedUserEntity) private blockedUserRepository: Repository<BlockedUserEntity>,
 		private readonly configService: ConfigService,
 	) {}
 	private logger = new Logger(UserService.name);
@@ -47,6 +47,22 @@ export class UserService {
 		return await this.getInfo(foundUser);
   }
 
+	async getUsersInfo(user) {
+		const foundUsers = await this.userRepository.find()
+		const friends = await this.friendRepository.findBy({ user_id: user.user_id })
+		let users = [];
+		foundUsers.forEach(u => {
+			if (user.user_id != u.id) {
+				users.push({
+					intra_id: u.intra_id,
+					nickname: u.nickname,
+					is_friend: friends.find((f) => { if (f.target_user_id == u.id) { return true; } }) != undefined ? true : false,
+				})
+			}
+		})
+		return (users);
+  }
+
 	async getUserMatchHistory(user) {
 		const matching_history = [];
 		const matchList = await this.matchHistoryRepository.findBy({ user_id: user.id });
@@ -55,7 +71,7 @@ export class UserService {
 			matching_history.push({
 				opponent_nickname: opponent.nickname,
 				opponent_url: opponent.profile_url,
-				win: (matchList[m].user_score > matchList[m].opponent_score) ? true : false,
+				win: matchList[m].win,
 				score: matchList[m].user_score,
 				opponent_score: matchList[m].opponent_score,
 				mode: matchList[m].mode,
@@ -70,20 +86,34 @@ export class UserService {
 		const ret = [];
 		for(let ind in friendList) {
 			let friend = await this.userRepository.findOneBy({ id: friendList[ind].target_user_id })
-			ret.push({
-				nickname: friend.nickname,
-				online: true,
-			})
+			if (friend) {
+				ret.push({
+					intra_id: friend.intra_id,
+					nickname: friend.nickname,
+					online: friend.online,
+				})
+			}
 		}
 		return ret;
   }
 
-  async getFriendsProfile(id) {
-		const user = await this.userRepository.findOneBy({ intra_id: id });
-		if (!user) {
+  async getFriendsProfile(user, id) {
+		const foundUser = await this.userRepository.findOneBy({ intra_id: id });
+		if (!foundUser) {
 			return null;
 		}
-		return await this.getInfo(user);
+		const info = await this.getInfo(foundUser);
+		const friend = await this.friendRepository.findOneBy({ user_id: user.user_id, target_user_id: foundUser.id })
+		const block = await this.blockedUserRepository.findOneBy({ user_id: user.user_id, target_user_id: foundUser.id })
+		return ({
+			intra_id: info.intra_id,
+			nickname: info.nickname,
+			profile_url: info.profile_url,
+			stats: info.stats,
+			matching_history: info.matching_history,
+			is_my_friend: friend ? true : false,
+			is_blocked: block ? true : false,
+		});
   }
 
 	async changeUserNickname(user, nickname) {
@@ -102,10 +132,12 @@ export class UserService {
 		}
 	}
 
-	async changeUserArcade(user, arcade) {
+	async changeUserArcade(user, arcade: string) {
 		const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: user.user_id })
 		if (foundUserStats) {
-			await this.userStatsRepository.update(foundUserStats, { arcade_score: arcade });
+			if (parseFloat(arcade) >= foundUserStats.arcade_score) {
+				await this.userStatsRepository.update(foundUserStats, { arcade_score: parseFloat(arcade) });
+			}
 		}
 	}
 
@@ -114,6 +146,44 @@ export class UserService {
 		if (foundUser) {
 			await this.userRepository.update(foundUser, { profile_url: `${this.configService.get('url')}/${file.path}` });
 		}
+	}
+
+	async addUserFriend(user, friend) {
+		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
+		const foundFriend = await this.userRepository.findOneBy({ intra_id: friend })
+		if (foundUser && foundFriend) {
+			this.friendRepository.insert({
+				user_id: foundUser.id,
+				target_user_id: foundFriend.id,
+			});
+		}
+	}
+
+	async removeUserFriend(user, friend) {
+		const foundFriend = await this.userRepository.findOneBy({ intra_id: friend });
+		const foundFriendList = await this.friendRepository.findOneBy({ user_id: user.user_id, target_user_id: foundFriend.id });
+		await this.friendRepository.delete(foundFriendList)
+	}
+
+	async blockUser(user, intra_id, is_blocked) {
+		const foundUser = await this.userRepository.findOneBy({ id: user.user_id });
+		const foundTarget = await this.userRepository.findOneBy({ intra_id: intra_id });
+		if (foundUser && foundTarget) {
+			if (is_blocked == false) {
+				const foundBlock = await this.blockedUserRepository.findOneBy({ user_id: foundUser.id, target_user_id: foundTarget.id })
+				if (!foundBlock) {
+					await this.blockedUserRepository.insert({ user_id: foundUser.id, target_user_id: foundTarget.id });
+				}
+				return false;
+			} else if (is_blocked == true) {
+				const foundBlock = await this.blockedUserRepository.findOneBy({ user_id: foundUser.id, target_user_id: foundTarget.id })
+				if (foundBlock) {
+					await this.blockedUserRepository.delete(foundBlock);
+				}
+				return true;
+			}
+		}
+
 	}
 
 }

@@ -13,12 +13,20 @@ namespace Pong {
     private scene!: Scene;
     private id: string;
     private name: string;
+    private acc: string;
     private nsp: Namespace;
     private player1: Socket = undefined;
     private player2: Socket = undefined;
-    private ended: boolean = false;
+    private p1_ready: boolean = false;
+    private p2_ready: boolean = false;
+    private spec: Map<string, Socket> = new Map();
+    private ended: boolean = true;
 
-    constructor() {
+    constructor(id: string, name: string, acc: string, nsp: Namespace) {
+      this.id = id;
+      this.name = name;
+      this.acc = acc;
+      this.nsp = nsp;
     }
     
     start(gameService: GameService) {
@@ -27,29 +35,62 @@ namespace Pong {
       let timestamp: number = startTime;
 
       this.loadScene(menu);
+      this.ended = false;
 
-      setInterval(() => {
-        if (!this.ended) {
-          let deltaTime = (startTime - timestamp) * 0.06;
-          this.scene.update(deltaTime);
-          
-          const draw = this.scene.draw();
-          if (draw['ball']) {
-            this.nsp.to(this.id).emit('draw', draw);
-          }
-         
-          timestamp = startTime;
-          startTime = Date.now();
+      const i = setInterval(() => {
+        if (this.ended) {
+          clearInterval(i);
         }
+        let deltaTime = (startTime - timestamp) * 0.06;
+        this.scene.update(deltaTime);
+          
+        const draw = this.scene.draw();
+        if (draw['ball']) {
+          this.nsp.to(this.id).emit('draw', draw);
+        }
+         
+        timestamp = startTime;
+        startTime = Date.now();
       }, 1000 / 60); // 60 == FPS
     }
 
-    ready() {
+    ready(socket: Socket, ready: boolean, gs) {
+      if (socket == this.player1) {
+        this.p1_ready = ready;
+      }
+      if (socket == this.player2) {
+        this.p2_ready = ready;
+      }
+
+      console.log(this.p1_ready);
+      console.log(this.p2_ready);
       
+
+      if (this.p1_ready && this.p2_ready) {
+        this.start(gs);
+      }
     }
 
-    disconnect() {
-
+    disconnect(socket: Socket) {
+      socket.leave(this.id)
+      if (socket == this.player1) {
+        if (this.ended == false) {
+          this.scene.end(2);
+          this.ended = true;
+        }
+        this.nsp.to(this.id).emit('quit', null);
+        return true;
+      } else if (socket == this.player2) {
+        this.player2 = undefined;
+        this.p2_ready = false;
+        if (this.ended == false) {
+          this.scene.end(1);
+          this.ended = true;
+        }
+      } else {
+        this.spec.delete(socket.data.room);
+      }
+      return false;
     }
 
     join(socket: Socket) {
@@ -58,33 +99,42 @@ namespace Pong {
         this.player1 = socket;
       } else if (this.player2 == undefined) {
         this.player2 = socket;
+      } else {
+        this.spec.set(socket.data.room, socket)
       }
     }
 
     move(socket: Socket, dir: Direction) {
-      if (socket == this.player1) {
-        this.scene.getInput(1, dir);
-      } else if (socket == this.player2) {
-        this.scene.getInput(2, dir);
+      if (this.scene) {
+        if (socket == this.player1) {
+          this.scene.getInput(1, dir);
+        } else if (socket == this.player2) {
+          this.scene.getInput(2, dir);
+        }
       }
     }
 
     gameResult(result) {
       this.nsp.to(this.id).emit('result', result);
+      this.nsp.to(this.id).emit('reset', null);
+      this.p1_ready = false;
+      this.p2_ready = false;
       this.ended = true;
     }
 
-    getPlayer1() {
-      if (this.player1) {
-        return this.player1.id;
+    getPlayer1() { if (this.player1) { return this.player1; }}
+    getPlayer2() { if (this.player2) { return this.player2; }}
+    getSpec() {
+      let s: Socket[] = [];
+      for (const m of this.spec) {
+        s.push(m[1]);
       }
+      return s;
     }
-
-    getPlayer2() {
-      if (this.player2) {
-        return this.player2.id;
-      }
-    }
+    getID() { return this.id }
+    getName() { return this.name }
+    getAccess() { return this.acc }
+    getReady() { return ({ p1: this.p1_ready, p2: this.p2_ready }) }
 
     loadScene(newScene: Scene, params?: object) {
       // If a scene has been loaded already, unload it

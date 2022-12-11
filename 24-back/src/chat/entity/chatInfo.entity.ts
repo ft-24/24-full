@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('RoomUserInfo')
-export class RoomUserInfoEntity {
+@Entity('ChatInfo')
+export class ChatInfoEntity {
 	@PrimaryGeneratedColumn('rowid')
 	id: number;
 
@@ -11,12 +11,12 @@ export class RoomUserInfoEntity {
 	@Column()
 	room_id: number;
 
-	@Column()
+	@Column({ default: false })
 	ban: boolean;
 
-	@Column()
+	@Column({ nullable: true, default: null })
 	mute: Date;
 
-	@Column()
+	@Column({ default: false })
 	admin: boolean;
 };
