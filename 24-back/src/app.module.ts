@@ -29,11 +29,11 @@ import { ChannelModule } from './chat/channels.module';
       useFactory: (config: ConfigService) => {
         return {
           type: 'postgres',
-          host: "localhost",
-          port: 5432,
-          username: config.get('db.username'),
-          password: config.get('db.password'),
-          database: config.get('db.database'),
+          host: config.get('db.hostname'),
+          port: config.get('db.port'),
+          username: "chanhuil",
+          password: "1234",
+          database: "postgres",
           entities: ["dist/**/*.entity{.ts,.js}"],
           synchronize: true,
         }
