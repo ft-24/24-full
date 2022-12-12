@@ -108,6 +108,7 @@ export class GameService {
       player_list: player,
       spectator_list: spec, 
       ready: g.getReady(),
+      turbo: g.getTurbo(),
     })
   }
 

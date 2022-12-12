@@ -33,11 +33,10 @@ export class ChannelsController {
 		return res.status(200).send(await this.channelService.getDMs(user));
 	}
 
-	@Get('users')
+	@Get('users/:room')
 	@UseGuards(JwtAuthGuard)
-	async getParticipators(@Res() res, @User() user, @Body() body) {
-		const { room_name } = body;
-		return res.status(200).send(await this.channelService.getParticipators(room_name))
+	async getParticipators(@Res() res, @User() user, @Param('room') room) {
+		return res.status(200).send(await this.channelService.getParticipators(room))
 	}
 
 	@Post('pass')

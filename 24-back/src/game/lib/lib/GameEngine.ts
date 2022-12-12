@@ -20,6 +20,7 @@ namespace Pong {
     private p1_ready: boolean = false;
     private p2_ready: boolean = false;
     private spec: Map<string, Socket> = new Map();
+    private turbo: boolean = false;
     private ended: boolean = true;
 
     constructor(id: string, name: string, acc: string, nsp: Namespace) {
@@ -43,6 +44,9 @@ namespace Pong {
         }
         let deltaTime = (startTime - timestamp) * 0.06;
         this.scene.update(deltaTime);
+        if (this.turbo) {
+          this.scene.update(deltaTime);
+        }
           
         const draw = this.scene.draw();
         if (draw['ball']) {
@@ -62,12 +66,14 @@ namespace Pong {
         this.p2_ready = ready;
       }
 
-      console.log(this.p1_ready);
-      console.log(this.p2_ready);
-      
-
       if (this.p1_ready && this.p2_ready) {
         this.start(gs);
+      }
+    }
+
+    turboToggle(turbo: boolean) {
+      if (turbo != undefined) {
+        this.turbo = turbo;
       }
     }
 
@@ -135,6 +141,7 @@ namespace Pong {
     getName() { return this.name }
     getAccess() { return this.acc }
     getReady() { return ({ p1: this.p1_ready, p2: this.p2_ready }) }
+    getTurbo() { return this.turbo }
 
     loadScene(newScene: Scene, params?: object) {
       // If a scene has been loaded already, unload it

@@ -43,41 +43,17 @@ export class AuthService {
     });
   }
 
-  // async issueAccessToken(user) {
-  //   const getUserId = await (await this.userRepository.findOneBy({ id: user.user_id }));
-  //   if (getUserId) {
-  //     const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: getUserId.id })
-  //     if (foundUser) {
-  //       this.oauthTokenRepository.delete(foundUser);
-  //     }
-  //     const access_token = this.jwtService.sign({}, {
-  //       expiresIn: `3d`,
-  //     });
-
-  //     this.oauthTokenRepository.insert({
-  //       user_id: getUserId.id,
-  //       access_token: access_token,
-  //     });
-
-  //     return (access_token);
-  //   }
-  // }
-
-  // async destroyOauthTokens(token) {
-  //   const decoded = this.jwtService.decode(token);
-  //   const foundUser = await this.oauthTokenRepository.findOneBy({ user_id: decoded['user_id'] })
-  //   if (foundUser) {
-  //     this.oauthTokenRepository.delete(foundUser);
-  //   }
-  // }
-
   async signup(user): Promise<any> {
     try {
       const foundUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
       if (!foundUser) {
+        let nick = user.intra_id;
+        while (await this.userRepository.findOneBy({ nickname: nick })) {
+          nick = `${nick}_`;
+        }
         const newUser = {
-          intra_id: user.int1ra_id,
-          nickname: user.intra_id,
+          intra_id: user.intra_id,
+          nickname: nick,
           email: user.email,
           profile_url: `${this.configService.get('url')}/upload/default.png`,
         }

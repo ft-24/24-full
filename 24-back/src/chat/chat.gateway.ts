@@ -103,6 +103,9 @@ export class ChatGateway
 
   @SubscribeMessage('join-room')
   async joinRoom(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
+    if (msg == undefined) {
+      return ;
+    }
     await this.chatService.joinChat(socket.data.user_id, msg.name);
     const messages = await this.chatService.getChat(socket, msg.name);
     socket.emit('messages', messages);
@@ -126,6 +129,24 @@ export class ChatGateway
   async leaveRoom(@ConnectedSocket() socket:Socket, @MessageBody() msg) {
     socket.to(msg.name).emit('fetch');
     socket.leave(msg.name)
+  }
+
+  @SubscribeMessage('quit-room')
+  async quitRoom(@ConnectedSocket() socket:Socket, @MessageBody() msg) {
+    if (socket.data.user_id && msg.name) {
+      await this.chatService.quitRoom(socket.data.user_id, msg.name);
+    }
+  }
+
+  @SubscribeMessage('kick')
+  async kick(@ConnectedSocket() socket:Socket, @MessageBody() msg) {
+    const kickedUser = await this.chatService.getUserByIntra(msg.intra_id);
+    const kickedUserRoom = await this.chatService.findRoomByIntra(msg.intra_id);
+    if (kickedUser && kickedUserRoom) {
+      await this.chatService.quitRoom(kickedUser.id, msg.name);
+    }
+    socket.to(kickedUserRoom).emit('kick', msg.name);
+    socket.to(msg.name).emit('fetch');
   }
 
   @SubscribeMessage('admin')

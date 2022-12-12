@@ -5,7 +5,7 @@ export class ChatRoomEntity {
 	@PrimaryGeneratedColumn('rowid')
 	id: number;
 
-	@Column()
+	@Column({ nullable: true })
 	owner_id: number;
 
 	@Column({ unique: true })

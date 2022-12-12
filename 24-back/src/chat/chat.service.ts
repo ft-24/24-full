@@ -247,6 +247,13 @@ export class ChatService {
     }
   }
 
+  async getUserByIntra(intra_id) {
+    const foundUser = (await this.userRepository.findOneBy({ intra_id: intra_id }));
+    if (foundUser) {
+      return foundUser;
+    }
+  }
+
   async getUserBySocket(socket: Socket) {
     if (socket.data.intra_id) {
       const foundUser = await this.userRepository.findOneBy({ id: socket.data.intra_id });
@@ -354,4 +361,25 @@ export class ChatService {
 		}
 		return true;
 	}
+
+  async quitRoom(id, name) {
+    const foundRoom = await this.chatRoomRepository.findOneBy({ name: name });
+    if (foundRoom) {
+      if (foundRoom.owner_id == id) {
+        await this.chatRoomRepository.update(foundRoom, { owner_id: null })
+      }
+      const foundInfo = await this.chatInfoRepository.findOneBy({ user_id: id, room_id: foundRoom.id });
+      if (foundInfo) {
+        await this.chatInfoRepository.remove(foundInfo);
+      }
+      const shouldDeleteRoom = await this.chatInfoRepository.findBy({ room_id: foundRoom.id })
+      if (shouldDeleteRoom && shouldDeleteRoom.length == 0 ) {
+        await this.chatRoomRepository.remove(foundRoom);
+        const foundChats = await this.chatRepository.findBy({ room_id: foundRoom.id });
+        if (foundChats) {
+          await this.chatRepository.remove(foundChats);
+        }
+      }
+    }
+  }
 }
