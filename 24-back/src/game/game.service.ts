@@ -21,24 +21,28 @@ export class GameService {
   private logger = new Logger(GameService.name)
 
   async insertGameResult(result) {
-    await this.matchHistoryRepository.insert({
-      user_id: result.user1_id,
-      opponent_id: result.user2_id,
-      user_score: result.user1_score,
-      opponent_score: result.user2_score,
-      mode: result.mode,
-      win: (result.win == 1) ? true : false,
-      playedAt: new Date(),
-    })
-    await this.matchHistoryRepository.insert({
-      user_id: result.user2_id,
-      opponent_id: result.user1_id,
-      user_score: result.user2_score,
-      opponent_score: result.user1_score,
-      mode: result.mode,
-      win: (result.win == 2) ? true : false,
-      playedAt: new Date(),
-    })
+	try {
+		await this.matchHistoryRepository.insert({
+		  user_id: result.user1_id,
+		  opponent_id: result.user2_id,
+		  user_score: result.user1_score,
+		  opponent_score: result.user2_score,
+		  mode: result.mode,
+		  win: (result.win == 1) ? true : false,
+		  playedAt: new Date(),
+		})
+		await this.matchHistoryRepository.insert({
+		  user_id: result.user2_id,
+		  opponent_id: result.user1_id,
+		  user_score: result.user2_score,
+		  opponent_score: result.user1_score,
+		  mode: result.mode,
+		  win: (result.win == 2) ? true : false,
+		  playedAt: new Date(),
+		})
+	} catch (e) {
+		this.logger.log(`Error: e`);
+	}
     const user1 = await this.userRepository.findOneBy({ id: result.user1_id });
     const user2 = await this.userRepository.findOneBy({ id: result.user2_id });
     const userst1 = await this.userStatsRepository.findOneBy({ user_id: user1.id });
@@ -46,11 +50,15 @@ export class GameService {
     if (result.mode == 'ladder' && userst1 && userst2) {
       if (result.win == 1) {
         await this.userStatsRepository.update(userst1, { ladder_score: userst1.ladder_score + 10 });
+        await this.userStatsRepository.update(userst1, { wins: userst1.wins + 1 });
         await this.userStatsRepository.update(userst2, { ladder_score: userst2.ladder_score - 10 });
+        await this.userStatsRepository.update(userst2, { loses: userst2.loses + 1 });
       }
       else if (result.win == 2) {
         await this.userStatsRepository.update(userst1, { ladder_score: userst1.ladder_score - 10 });
+        await this.userStatsRepository.update(userst1, { loses: userst1.loses + 1 });
         await this.userStatsRepository.update(userst2, { ladder_score: userst2.ladder_score + 10 });
+        await this.userStatsRepository.update(userst2, { wins: userst2.wins + 1 });
       }
     }
     return ({

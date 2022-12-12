@@ -22,6 +22,9 @@ export class UserService {
 	private logger = new Logger(UserService.name);
 
 	async getInfo(user) {
+		if (user == undefined) {
+			return ;
+		}
 		const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: user.id });
 		const matchHistory = await this.getUserMatchHistory(user);
 		if (!user || !foundUserStats)
