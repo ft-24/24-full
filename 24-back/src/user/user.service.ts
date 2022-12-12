@@ -47,14 +47,16 @@ export class UserService {
 
 	async getUserInfo(user) {
 		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
-		return await this.getInfo(foundUser);
+		if (foundUser) {
+			return await this.getInfo(foundUser);
+		}
   }
 
 	async getUsersInfo(user) {
 		const foundUsers = await this.userRepository.find()
 		const friends = await this.friendRepository.findBy({ user_id: user.user_id })
 		let users = [];
-		foundUsers.forEach(u => {
+		for (const u of foundUsers) {
 			if (user.user_id != u.id) {
 				users.push({
 					intra_id: u.intra_id,
@@ -62,7 +64,7 @@ export class UserService {
 					is_friend: friends.find((f) => { if (f.target_user_id == u.id) { return true; } }) != undefined ? true : false,
 				})
 			}
-		})
+		}
 		return (users);
   }
 
@@ -108,15 +110,17 @@ export class UserService {
 		const info = await this.getInfo(foundUser);
 		const friend = await this.friendRepository.findOneBy({ user_id: user.user_id, target_user_id: foundUser.id })
 		const block = await this.blockedUserRepository.findOneBy({ user_id: user.user_id, target_user_id: foundUser.id })
-		return ({
-			intra_id: info.intra_id,
-			nickname: info.nickname,
-			profile_url: info.profile_url,
-			stats: info.stats,
-			matching_history: info.matching_history,
-			is_my_friend: friend ? true : false,
-			is_blocked: block ? true : false,
-		});
+		if (info != undefined) {
+			return ({
+				intra_id: info.intra_id,
+				nickname: info.nickname,
+				profile_url: info.profile_url,
+				stats: info.stats,
+				matching_history: info.matching_history,
+				is_my_friend: friend ? true : false,
+				is_blocked: block ? true : false,
+			});
+		}
   }
 
 	async changeUserNickname(user, nickname) {
@@ -164,8 +168,10 @@ export class UserService {
 
 	async removeUserFriend(user, friend) {
 		const foundFriend = await this.userRepository.findOneBy({ intra_id: friend });
-		const foundFriendList = await this.friendRepository.findOneBy({ user_id: user.user_id, target_user_id: foundFriend.id });
-		await this.friendRepository.delete(foundFriendList)
+		if (foundFriend) {
+			const foundFriendList = await this.friendRepository.findOneBy({ user_id: user.user_id, target_user_id: foundFriend.id });
+			await this.friendRepository.delete(foundFriendList)
+		}
 	}
 
 	async blockUser(user, intra_id, is_blocked) {

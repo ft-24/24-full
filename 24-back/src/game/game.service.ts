@@ -72,7 +72,11 @@ export class GameService {
 
   getGameById(g: GameEngine[], id: string) {
     let game: GameEngine = undefined;
-    g.forEach(room => { if (room.getID() == id) { game = room; }})
+	for (const room of g) {
+		if (room.getID() == id) {
+			game = room;
+		}
+	}
     return game;
   }
 

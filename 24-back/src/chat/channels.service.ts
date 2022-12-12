@@ -19,8 +19,6 @@ export class ChannelService {
 	private logger = new Logger(ChannelService.name);
 
 	async getAllChannels(user) {
-		/* select id, owner_id, access_modifier, name from chat-rooms cr, RoomUserInfo rinfo
-		   where cr.id  */
 		const channels = ( await this.chatRoomsRepository.find() );
 		const ret = []
 		for (let ch in channels) {
