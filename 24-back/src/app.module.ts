@@ -32,7 +32,7 @@ import { ChannelModule } from './chat/channels.module';
           host: config.get('db.hostname'),
           port: config.get('db.port'),
           username: "chanhuil",
-          password: "1234",
+          password: "postgres",
           database: "postgres",
           entities: ["dist/**/*.entity{.ts,.js}"],
           synchronize: true,
