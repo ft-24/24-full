@@ -4,11 +4,12 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: "chanhuil"
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DATABASE}
     ports:
       - 5432:5432
+    init: true
   back: 
     build: 
       context: "./24-back"
@@ -30,6 +31,8 @@ services:
     container_name: "front" 
     working_dir: "/app/front" 
     env_file: .env
+    depends_on:
+      - back
     ports: 
       - "5173:5173"
   # noderedis: 

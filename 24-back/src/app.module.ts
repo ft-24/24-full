@@ -31,9 +31,9 @@ import { ChannelModule } from './chat/channels.module';
           type: 'postgres',
           host: config.get('db.hostname'),
           port: config.get('db.port'),
-          username: "chanhuil",
-          password: "postgres",
-          database: "postgres",
+          username: config.get('db.username'),
+          password: config.get('db.password'),
+          database: config.get('db.database'),
           entities: ["dist/**/*.entity{.ts,.js}"],
           synchronize: true,
         }
