@@ -220,7 +220,6 @@ const UserSearch = ({ modalHandler, addFriendHandler }: any) => {
                   if (!ele.is_friend){
                     addFriendHandler(ele.intra_id);
                     setState("SEND");
-                    getUsers();
                   }
                 } catch (err) 
                 {
