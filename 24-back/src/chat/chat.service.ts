@@ -138,7 +138,7 @@ export class ChatService {
 
   async saveDM(socket, msg) {
     const sender = await this.userRepository.findOneBy({ id: socket.data.user_id })
-    const receiver = await this.userRepository.findOneBy({ nickname: msg.receiver })
+    const receiver = await this.userRepository.findOneBy({ intra_id: msg.receiver })
     if (sender && receiver) {
       const insertedDM = await this.dmRepository.insert({
         sender: sender.id,
@@ -234,8 +234,8 @@ export class ChatService {
     }
   }
 
-  async findRoom(nickname) {
-    const foundUser = (await this.userRepository.findOneBy({ nickname: nickname }));
+  async findRoom(intra) {
+    const foundUser = (await this.userRepository.findOneBy({ intra_id: intra }));
     if (foundUser) {
       return (await this.dmChannelRepository.findOneBy({ user_id: foundUser.id })).room;
     }

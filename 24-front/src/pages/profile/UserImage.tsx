@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { Url } from "../../constants/Global";
 import { useAuthState } from "../../context/AuthHooks";
@@ -38,9 +39,10 @@ const Label = styled.label`
   }
 `;
 
-const UserImage = ({profile_url} : {profile_url : string}) => {
+const UserImage = ({profile_url, user} : {profile_url : string, user: string}) => {
   const [image, setImage] = useState(profile_url);
-  const { token } = useAuthState();
+  const {pathVar} = useParams();
+  const { token, intra } = useAuthState();
 
   useEffect(() => {
     setImage(profile_url);
@@ -61,6 +63,7 @@ const UserImage = ({profile_url} : {profile_url : string}) => {
       const url = URL.createObjectURL(file);
       setImage(url);
     }).catch(error => {
+      alert("이미지를 변경할 수 없습니다!");
       console.error('image upload failed');
     });
   }
@@ -76,7 +79,7 @@ const UserImage = ({profile_url} : {profile_url : string}) => {
     <Wrapper>
       <ProfileImg src={ image } alt="not fount"></ProfileImg>
       <Input type='file' id='ProfileImg' accept='image/*' name='file' onChange={onImgChange}></Input>
-      <Label htmlFor="ProfileImg">Upload image</Label>
+      { intra === user ? <Label htmlFor="ProfileImg">Upload image</Label> : null }
     </Wrapper>
   );
 }

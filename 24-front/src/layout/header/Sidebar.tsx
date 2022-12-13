@@ -67,6 +67,7 @@ const Circle = styled.div<dynamicColor>`
 
 const NameContainer = styled.div`
   display: flex;
+  cursor: pointer;
 `;
 
 const ButtonContainer = styled.div`
@@ -204,7 +205,7 @@ const Sidebar = () => {
         <OnlineList>
           {onlineFriends.map((item: Friend, index) => (
             <FriendWrapper key={index}>
-              <NameContainer>
+              <NameContainer onClick={()=>navigate("/profile/" + item.intra_id)}>
                 <Circle color="var(--yellow)" />
                 <OnlineText>{item.nickname}</OnlineText>
               </NameContainer>
@@ -224,7 +225,7 @@ const Sidebar = () => {
         <OfflineList>
           {offlineFriends.map((item: Friend, index) => (
             <FriendWrapper key={index}>
-              <NameContainer>
+              <NameContainer onClick={()=>navigate("/profile/" + item.intra_id)}>
                 <Circle color="var(--purple)" />
                 <OfflineText>{item.nickname}</OfflineText>
               </NameContainer>

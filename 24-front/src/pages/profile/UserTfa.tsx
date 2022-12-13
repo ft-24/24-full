@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { Url } from "../../constants/Global";
 import { useAuthState } from "../../context/AuthHooks";
@@ -29,10 +30,11 @@ const Message = styled.div`
   background: var(--translucent-white);
 `
 
-const UserTfa = ({isTfaOn} : {isTfaOn : boolean}) => {
+const UserTfa = ({isTfaOn, user} : {isTfaOn : boolean, user: string}) => {
   const [tfa, setTfa] = useState(isTfaOn);
 	const [hover, setHover] = useState(false);
-  const { token } = useAuthState();
+  const {pathVar} = useParams();
+  const { token, intra } = useAuthState();
 
   useEffect(() => {
     setTfa(isTfaOn);
@@ -55,11 +57,12 @@ const UserTfa = ({isTfaOn} : {isTfaOn : boolean}) => {
 
   return (
 		<Wrapper>
+      {intra === user ?
     	<Button
 				onClick={() => { onClickTfa() }}
-				onMouseEnter={() => {setHover(true)}}
+				onMouseEnter={() => {setHover(true); console.log(pathVar)}}
       	onMouseLeave={() => {setHover(false)}}>
-				{tfa ? '🔒' : '🔓'}</Button>
+				{tfa ? '🔒' : '🔓'}</Button> : null }
 			<MessageWrapper>
 				{hover ? <Message>Two-factor Auth</Message> : null}
 			</MessageWrapper>

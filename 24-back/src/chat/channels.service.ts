@@ -22,6 +22,9 @@ export class ChannelService {
 		const channels = ( await this.chatRoomsRepository.find() );
 		const ret = []
 		for (let ch in channels) {
+			if (channels[ch].access_modifier == 'private') {
+				continue;
+			}
 			ret.push({
 				room_id: channels[ch].id,
 				name: channels[ch].name,

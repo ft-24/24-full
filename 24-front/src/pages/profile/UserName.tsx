@@ -1,5 +1,6 @@
 import axios from "axios";
 import { SetStateAction, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { Url } from "../../constants/Global";
 import { useAuthState } from "../../context/AuthHooks";
@@ -36,11 +37,11 @@ const Button = styled.button`
   }
 `;
 
-const UserName = ({name, children}: {name: string, children: any} ) => {
+const UserName = ({name, user, children}: {name: string, user: string, children: any} ) => {
   const [nickname, setNickname] = useState(name ?? "noname");
   const [isChange, setIsChange] = useState(false);
-
-  const { token } = useAuthState();
+  const {pathVar} = useParams();
+  const { token, intra } = useAuthState();
 
   const [temp, setTemp] = useState("");
   const handleChange = (event: { currentTarget: { value: SetStateAction<string>; }; }) => {
@@ -71,6 +72,7 @@ const UserName = ({name, children}: {name: string, children: any} ) => {
     <Wrapper>
       <ProfileTitle>{nickname} {children}</ProfileTitle>
         { isChange ? <input id="input_name" type="text" onChange={handleChange}/> : null }
+        {intra === user ?
       <Button onClick={() => {
         if (isChange === false) {
           setIsChange(prev => !prev);
@@ -79,6 +81,8 @@ const UserName = ({name, children}: {name: string, children: any} ) => {
           setIsChange(prev => !prev)
         }
       }}>{isChange ? "submit" : "change nickname"}</Button>
+      : null
+    }
     </Wrapper>
   );
 }

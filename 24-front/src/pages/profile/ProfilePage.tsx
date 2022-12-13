@@ -131,11 +131,11 @@ const Profile = () => {
     <Layout>
       <Wrapper>
         <UserProfile>
-          <UserImage profile_url={userData.profile_url} />
-          <UserName name={userData.nickname}>
-            <UserTfa isTfaOn={userData.two_factor} />
+          <UserImage profile_url={userData.profile_url} user={userData.intra_id}/>
+          <UserName name={userData.nickname} user={userData.intra_id}>
+            <UserTfa isTfaOn={userData.two_factor} user={userData.intra_id}/>
           </UserName>
-          <UserStats stats={userData.stats} />
+          <UserStats stats={userData.stats}/>
         </UserProfile>
         <UserHistory>
           {userData.matching_history.length !== 0 ?
