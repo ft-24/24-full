@@ -62,6 +62,7 @@ const UserName = ({name, children}: {name: string, children: any} ) => {
       console.log("set profile name: " + response.status);
       setNickname(name);
     }).catch (error => {
+      alert("닉네임을 변경할 수 없습니다!");
       console.error('set name failed');
     });
   }
