@@ -71,7 +71,10 @@ namespace Pong {
       }
     }
 
-    turboToggle(turbo: boolean) {
+    turboToggle(socket: Socket, turbo: boolean) {
+      if (socket != this.player1 && socket != this.player2) {
+        return ;
+      }
       if (turbo != undefined) {
         this.turbo = turbo;
       }

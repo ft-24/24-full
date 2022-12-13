@@ -120,7 +120,7 @@ export class GameGateway
     async playerTurbo(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
       const joinedGame = this.gameService.getJoinedGame([...Games, ...PrivateGames, ...LadderGames], socket);
       if (joinedGame) { 
-        joinedGame.turboToggle(msg.is_turbo);
+        joinedGame.turboToggle(socket, msg.is_turbo);
         this.nsp.to(joinedGame.getID()).emit('get', await this.gameService.getInfoByGame(joinedGame, socket))
       }
     }
