@@ -52,21 +52,25 @@ export class UserController {
   @UseInterceptors(FileInterceptor('image', multerOptions))
   async userProfileEdit(@Res() res, @Body() body, @User() user, @UploadedFile() file) {
     const { nickname, two_auth, arcade } = body;
-    if (nickname) {
-      await this.userService.changeUserNickname(user, nickname)
+    try {
+      if (nickname) {
+        await this.userService.changeUserNickname(user, nickname)
+      }
+      if (two_auth !== undefined) {
+        await this.userService.changeUserTFA(user, two_auth)
+      }
+      if (arcade) {
+        await this.userService.changeUserArcade(user, arcade)
+      }
+      if (file) {
+        await this.userService.changeUserProfilePic(user, file)
+      }
+      return res.status(200).send(
+        await this.userService.getUserInfo(user)
+      );
+    } catch (e) {
+      return res.status(404).send();
     }
-    if (two_auth !== undefined) {
-      await this.userService.changeUserTFA(user, two_auth)
-    }
-    if (arcade) {
-      await this.userService.changeUserArcade(user, arcade)
-    }
-    if (file) {
-      await this.userService.changeUserProfilePic(user, file)
-    }
-    return res.status(200).send(
-      await this.userService.getUserInfo(user)
-    );
   }
 
   @Put('friends')

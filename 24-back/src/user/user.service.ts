@@ -126,12 +126,8 @@ export class UserService {
 	async changeUserNickname(user, nickname) {
 		const foundUser = await this.userRepository.findOneBy({ id: user.user_id })
 		if (foundUser) {
-			try {
-				await this.userRepository.update(foundUser, { nickname: nickname });
-				return nickname;
-			} catch (e) {
-				this.logger.log(`Error: ${e}`);
-			}
+			await this.userRepository.update(foundUser, { nickname: nickname });
+			return nickname;
 		}
 	}
 
