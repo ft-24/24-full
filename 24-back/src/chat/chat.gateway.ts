@@ -42,6 +42,7 @@ export class ChatGateway
       }
       socket.emit("session", { sessionID: socket.data.sessionID, userID: socket.data.room });
       socket.join(socket.data.room);
+      this.chatService.userOnline(socket.data.user_id)
     } catch (e) {
       this.logger.log(`Error occured! ${e}`)
     }
