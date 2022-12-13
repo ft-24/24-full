@@ -57,14 +57,15 @@ export class AuthService {
           email: user.email,
           profile_url: `${this.configService.get('url')}/upload/default.png`,
         }
-        const insertedUser = await this.userRepository.insert(newUser);
+        await this.userRepository.insert(newUser);
+        const insertedUser = await this.userRepository.findOneBy({ intra_id: user.intra_id });
         const newUserStats = {
-          user_id: insertedUser.raw[0].id,
+          user_id: insertedUser.id,
         }
         await this.userStatsRepository.insert(newUserStats);
         return ({
-			id: insertedUser.raw[0].id,
-		});
+          id: insertedUser.id,
+        });
       }
       const foundUserStats = await this.userStatsRepository.findOneBy({ user_id: foundUser.id });
       if (!foundUserStats) {
