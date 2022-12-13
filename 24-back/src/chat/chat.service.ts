@@ -114,8 +114,9 @@ export class ChatService {
         room: `${uuid()}`,
         user_id: user_id,
       }
-      const insertedUser = await this.dmChannelRepository.insert(newUser);
-      return insertedUser.raw[0];
+      await this.dmChannelRepository.insert(newUser);
+      const insertedUser = await this.dmChannelRepository.findOneBy({ user_id: user_id });
+      return insertedUser;
     }
     return foundUser
   }
