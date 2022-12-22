@@ -82,7 +82,6 @@ const Profile = () => {
           console.log(data);
     }).catch(error => {
       console.error('user profile loading failed');
-      setUserData(DummyUserData);
     });
   }
 
