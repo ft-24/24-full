@@ -57,34 +57,6 @@ const UserHistory = styled.div`
   background: rgba(0, 0, 0, 0);
 `;
 
-const DummyUserData: UserProps = {
-  intra_id: 'undefined',
-  nickname: 'undefined',
-  profile_url: '/src/images/hero.png',
-  two_factor: false,
-  stats: {wins: 42, loses: 24, ladder_score: 123, arcade_score: 321},
-  matching_history: [
-    {
-      opponent_url: '/src/images/hero.png',
-      opponent_nickname: 'other',
-      win: true,
-      score: 100,
-      opponent_score: 80,
-      mode: 'public',
-      played_at: '2022-11-29 19:04',
-    },
-    {
-      opponent_url: '/src/images/hero.png',
-      opponent_nickname: 'other',
-      win: false,
-      score: 80,
-      opponent_score: 100,
-      mode: 'public',
-      played_at: '2022-11-29 16:28',
-    },
-  ]
-}
-
 const Profile = () => {
   const pathVar = useParams();
   const intra = pathVar ? pathVar.intra : "";
@@ -106,7 +78,8 @@ const Profile = () => {
           data.profile_url,
           data.two_factor,
           data.stats,
-          data.matching_history));    
+          data.matching_history));
+          console.log(data);
     }).catch(error => {
       console.error('user profile loading failed');
       setUserData(DummyUserData);
