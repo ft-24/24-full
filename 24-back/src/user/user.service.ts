@@ -35,6 +35,7 @@ export class UserService {
 			intra_id: user.intra_id,
 			nickname: user.nickname,
 			profile_url: user.profile_url,
+			two_auth: user.two_factor_Auth,
 			stats: {
 				wins: foundUserStats.wins,
 				loses: foundUserStats.loses,
