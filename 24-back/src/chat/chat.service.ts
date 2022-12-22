@@ -183,7 +183,7 @@ export class ChatService {
       const foundChats = await this.chatRepository.findBy({ room_id: foundRoom.id })
       for (const c of foundChats) {
         const foundSender = await this.userRepository.findOneBy({ id: c.sender })
-        if (!await this.isBlocked(socket.data.user_id, foundSender.id)) {
+        // if (!await this.isBlocked(socket.data.user_id, foundSender.id)) {
           chats.push({
             intra_id: foundSender.intra_id,
             profile_url: foundSender.profile_url,
@@ -191,7 +191,7 @@ export class ChatService {
             chat: c.chat,
             time: (c.time).toString(),
           })
-        }
+        // }
       }
     }
     return chats;

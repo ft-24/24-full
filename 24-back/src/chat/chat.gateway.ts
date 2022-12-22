@@ -118,12 +118,12 @@ export class ChatGateway
   async dmJoinRoom(@ConnectedSocket() socket: Socket, @MessageBody() msg) {
     const to = await this.chatService.findTo(msg.intra);
     const messages = await this.chatService.getDM(socket, msg.intra);
-    if (to) {
-      socket.to(socket.data.room).emit("dm-messages", messages)
-      if (!await this.chatService.isBlockedByIntra(msg.intra, socket.data.user_id)) {
-        socket.to(to).emit('dm-messages', messages)
-      }
-    }
+    // if (to) {
+    //   // socket.to(socket.data.room).emit("dm-messages", messages)
+    //   if (!await this.chatService.isBlockedByIntra(msg.intra, socket.data.user_id)) {
+    //     socket.to(to).emit('dm-messages', messages)
+    //   }
+    // }
   }
 
   @SubscribeMessage('leave-room')
