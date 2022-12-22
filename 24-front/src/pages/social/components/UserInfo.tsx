@@ -213,7 +213,7 @@ const UserInfo = ({setIsInfoOn, userIntra, roomName, joinedUsers}: Props) => {
     }).then(response => {
 			getData();
     }).catch(error => {
-      console.error('DM List loading failed');
+		console.error(error);
     });
 	}
 
@@ -229,9 +229,9 @@ const UserInfo = ({setIsInfoOn, userIntra, roomName, joinedUsers}: Props) => {
 				intra_id: userIntra,
 			}
     }).then(response => {
-			getData();
+		getData();
     }).catch(error => {
-      console.error('DM List loading failed');
+		console.error(error);
     });
 	}
 
@@ -256,19 +256,19 @@ const UserInfo = ({setIsInfoOn, userIntra, roomName, joinedUsers}: Props) => {
 		if (!userData) {
 			return;
 		}
-    await axios.put(Url + 'user/block', {
-				intra_id: userIntra,
-				is_blocked: userData.is_blocked,
-			},{
-      headers: {
-        Authorization:"Bearer " + token
-      }
-    }).then(response => {
-			showNotification({index: 0, text: '해당 유저가 블락되었습니다.'});
+		await axios.put(Url + 'user/block', {
+					intra_id: userIntra,
+					is_blocked: userData.is_blocked,
+				},{
+		headers: {
+			Authorization:"Bearer " + token
+		}
+		}).then(response => {
 			getData();
-    }).catch(error => {
-      console.error('DM List loading failed');
-    });
+			showNotification({index: 0, text: userData.is_blocked ?? '해당 유저가 블락되었습니다.' : '해당 유저가 블락해제되었습니다.'});
+		}).catch(error => {
+			console.error(error);
+		});
 	}
 
 	const onClickAdmin = async () => {
@@ -296,43 +296,43 @@ const UserInfo = ({setIsInfoOn, userIntra, roomName, joinedUsers}: Props) => {
 		if (!userData) {
 			return;
 		}
-    await axios.put(Url + 'channels/mute', {
-				intra_id: userIntra,
-				room_name: roomName,
-			},{
-      headers: {
-        Authorization:"Bearer " + token
-      }
-    }).then(response => {
-			showNotification({index: 0, text: '해당 유저가 뮤트되었습니다.'});
-    }).catch(error => {
-      console.error('DM List loading failed');
-    });
+		await axios.put(Url + 'channels/mute', {
+					intra_id: userIntra,
+					room_name: roomName,
+				},{
+		headers: {
+			Authorization:"Bearer " + token
+		}
+		}).then(response => {
+				showNotification({index: 0, text: '해당 유저가 뮤트되었습니다.'});
+		}).catch(error => {
+			console.error(error);
+		});
 	}
 
 	const onClickBan = async () => {
 		if (!userData) {
 			return;
 		}
-    await axios.put(Url + 'channels/ban', {
-				intra_id: userIntra,
-				room_name: roomName,
-			},{
-      headers: {
-        Authorization:"Bearer " + token
-      }
-    }).then(response => {
-			showNotification({index: 0, text: '해당 유저가 밴되었습니다.'});
-    }).catch(error => {
-      console.error('DM List loading failed');
-    });
+		await axios.put(Url + 'channels/ban', {
+					intra_id: userIntra,
+					room_name: roomName,
+				},{
+		headers: {
+			Authorization:"Bearer " + token
+		}
+		}).then(response => {
+				showNotification({index: 0, text: '해당 유저가 밴되었습니다.'});
+		}).catch(error => {
+			console.error(error);
+		});
 	}
 
 	const onClickKick = async () => {
-    if (socket && userData) {
-      console.log("emit " + "kick " + userData.intra_id + " from " + roomName);
-      socket.emit("kick", {name: roomName, intra_id: userData.intra_id});
-    }
+		if (socket && userData) {
+		console.log("emit " + "kick " + userData.intra_id + " from " + roomName);
+		socket.emit("kick", {name: roomName, intra_id: userData.intra_id});
+		}
 	}
 
 	return (

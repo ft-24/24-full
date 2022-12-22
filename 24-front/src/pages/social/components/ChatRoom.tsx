@@ -236,8 +236,10 @@ const ChatRoom = ({type, isRoomInfoOn, setLocate, setJoinedUsers, setIsInfoOn, s
   return (
     <Container>
       <SectionHeader color="var(--purple)" title={ type === "dm" ? nickname + ", " + target : target}>
-        {isRoomInfoOn ? <div onClick={onClickQuitRoom}>방 나가기</div>
-          : <div onClick={onClickRoomInfo}>{":"}</div>}
+        {type == "dm" ? :
+          {isRoomInfoOn ? <div onClick={onClickQuitRoom}>방 나가기</div>
+            : <div onClick={onClickRoomInfo}>{":"}</div>}
+          : null}
       </SectionHeader>
       <ChatSection>
         <ChatContainer>
