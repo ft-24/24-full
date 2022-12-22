@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Get, Headers, Logger, Param, Post, Put, Res, UseGuards } from "@nestjs/common";
-import { userInfo } from "os";
 import { JwtAuthGuard } from "src/auth/guard/jwt.guard";
 import { User } from "src/auth/user.decorator";
 import { ChannelService } from "./channels.service";

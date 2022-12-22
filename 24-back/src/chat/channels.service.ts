@@ -6,6 +6,7 @@ import { ChatInfoEntity } from "./entity/chatInfo.entity";
 import { UserEntity } from "src/user/entity/user.entity";
 import * as bcrypt from 'bcrypt';
 import { DmListEntity } from "./entity/dmList.entity";
+import { ChatService } from "./chat.service";
 
 @Injectable()
 export class ChannelService {
@@ -14,6 +15,7 @@ export class ChannelService {
 		@InjectRepository(DmListEntity) private dmListRepository: Repository<DmListEntity>,
 		@InjectRepository(ChatRoomEntity) private chatRoomsRepository: Repository<ChatRoomEntity>,
 		@InjectRepository(ChatInfoEntity) private chatInfoRepository: Repository<ChatInfoEntity>,
+		private readonly chatService: ChatService,
 	) {}
 
 	private logger = new Logger(ChannelService.name);
@@ -132,11 +134,14 @@ export class ChannelService {
 		const rooms = (await this.dmListRepository.findBy({ user1_id: user.user_id }));
 		const ret = []
 		for (const i of rooms) {
-			let user = await this.userRepository.findOneBy({ id: i.user2_id });
-			if (user) {
+			let _user = await this.userRepository.findOneBy({ id: i.user2_id });
+			if (await this.chatService.isBlocked(user.user_id, i.user2_id)) {
+				continue;
+			}
+			if (_user) {
 				ret.push({
-					intra_id: user.intra_id,
-					nickname: user.nickname,
+					intra_id: _user.intra_id,
+					nickname: _user.nickname,
 				});
 			}
 		}
