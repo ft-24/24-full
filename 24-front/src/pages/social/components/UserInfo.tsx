@@ -265,7 +265,7 @@ const UserInfo = ({setIsInfoOn, userIntra, roomName, joinedUsers}: Props) => {
 		}
 		}).then(response => {
 			getData();
-			showNotification({index: 0, text: userData.is_blocked ?? '해당 유저가 블락되었습니다.' : '해당 유저가 블락해제되었습니다.'});
+			showNotification({index: 0, text: userData.is_blocked ? '해당 유저가 블락되었습니다.' : '해당 유저가 블락해제되었습니다.'});
 		}).catch(error => {
 			console.error(error);
 		});
